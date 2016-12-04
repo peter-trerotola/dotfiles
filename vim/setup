@@ -7,3 +7,4 @@ cd ~/dotfiles/; git submodule update --init --recursive
 rm -rf ~/.vim
 mkdir -p ~/.vim
 rsync -a --delete ~/dotfiles/vim/configs/vim/* ~/.vim/
+mv ~/.vim/autoload/pathogen/autoload/pathogen.vim ~/.vim/autoload/pathogen.vim

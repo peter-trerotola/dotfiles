@@ -1,5 +1,4 @@
 execute pathogen#infect()
-call plug#begin()
 
 set nocompatible
 set fileformat=unix
@@ -90,4 +89,3 @@ set completeopt=longest,menu,preview
 
 "write as sudo
 cmap w!! %!sudo tee > /dev/null %
-call plug#end()
