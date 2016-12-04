@@ -1,3 +1,3 @@
-for app in git rsync; do
+for app in git rsync xclip; do
 	command -v $app >/dev/null 2>&1 || { sudo apt-get install $app -y; }
 done
