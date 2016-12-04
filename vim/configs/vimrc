@@ -16,6 +16,7 @@ set nu
 set ai "Auto indent
 set si "Smart indent
 
+let g:neodark#background='black' 
 syntax on
 " nice code
 
