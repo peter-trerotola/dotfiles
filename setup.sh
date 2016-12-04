@@ -6,6 +6,6 @@ then
 	sudo apt-get update
 	sudo apt-get upgrade
 fi
-for install in system i3 vim tmux zsh ssh; do
+for install in system i3 vim tmux ssh zsh; do
 	/bin/bash $install/setup
 done
