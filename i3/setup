@@ -1,7 +1,7 @@
 if [ ! -d /usr/share/fonts-font-awesome ]; then
 	sudo apt-get install fonts-font-awesome
 fi
-for app in i3 i3blocks; do
+for app in i3 i3blocks rofi; do
 	command -v $app >/dev/null 2>&1 || { sudo apt-get install $app -y; }
 done
 echo Installing i3 configurations
