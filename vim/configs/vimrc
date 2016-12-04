@@ -92,3 +92,18 @@ set completeopt=longest,menu,preview
 
 "write as sudo
 cmap w!! %!sudo tee > /dev/null %
+
+"mouse mode toggle for tmux crap
+function! ToggleMouse()
+    " check if mouse is enabled
+    if &mouse == 'a'
+        " disable mouse
+        set nonumber
+        set mouse=
+    else
+        " enable mouse everywhere
+        set number
+        set mouse=a
+    endif
+endfunc
+map <C-m> :call ToggleMouse()<CR>
