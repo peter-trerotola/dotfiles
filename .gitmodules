@@ -1,0 +1,3 @@
+[submodule "vim/configs/vim/bundle/acp.vim"]
+	path = vim/configs/vim/bundle/acp.vim
+	url = git@github.com:vim-scripts/AutoComplPop.git
