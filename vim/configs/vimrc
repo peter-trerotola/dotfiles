@@ -20,12 +20,13 @@ syntax on
 " nice code
 
 " set background=dark
- colorscheme desert
+" colorscheme desert
 " colorscheme wombat
 " g:molokai_original
 " colorscheme desert
 " colorscheme solarized
 " let g:solarized_degrade=0
+colorscheme neodark
 
 set background=dark
 

@@ -28,3 +28,6 @@
 [submodule "vim/configs/vim/autoload/pathogen"]
 	path = vim/configs/vim/autoload/pathogen
 	url = git@github.com:tpope/vim-pathogen.git
+[submodule "vim/configs/vim/bundle/neodark.vim"]
+	path = vim/configs/vim/bundle/neodark.vim
+	url = git@github.com:KeitaNakamura/neodark.vim.git
