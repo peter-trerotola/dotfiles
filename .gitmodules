@@ -31,3 +31,9 @@
 [submodule "vim/configs/vim/bundle/jay.vim"]
 	path = vim/configs/vim/bundle/jay.vim
 	url = git@github.com:josuegaleas/jay.git
+[submodule "vim/configs/vim/bundle/neodark"]
+	path = vim/configs/vim/bundle/neodark
+	url = git@github.com:KeitaNakamura/neodark.vim.git
+[submodule "vim/configs/vim/bundle/tender.vim"]
+	path = vim/configs/vim/bundle/tender.vim
+	url = git@github.com:jacoborus/tender.vim.git

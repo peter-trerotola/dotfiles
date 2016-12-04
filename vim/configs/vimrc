@@ -27,7 +27,8 @@ syntax on
 " colorscheme desert
 " colorscheme solarized
 " let g:solarized_degrade=0
-colorscheme jay
+" colorscheme jay
+colorscheme tender
 
 
 set nobackup
@@ -70,7 +71,7 @@ map <C-n> :NERDTreeToggle<CR>
 let NERDTreeMapOpenInTab=1
 set laststatus=2
 let g:airline#extensions#tabline#enabled = 1
-let g:airline_theme='murmur'
+let g:airline_theme='tender'
 set clipboard=unnamed
 
 set statusline+=%#warningmsg#
