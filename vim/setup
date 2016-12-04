@@ -3,6 +3,7 @@ echo Installing vim configurations
 sudo mv /usr/bin/vim /usr/bin/vim.orig
 sudo ln -s /usr/bin/vim.nox /usr/bin/vim
 cat ~/dotfiles/vim/configs/vimrc > ~/.vimrc
+cd ~/dotfiles/; git submodule update --init --recursive
 rm -rf ~/.vim
 mkdir -p ~/.vim
 rsync -a --delete ~/dotfiles/vim/configs/vim/* ~/.vim/
