@@ -1,0 +1,3 @@
+echo Installing ssh config
+mkdir -p ~/.ssh
+cat ~/dotfiles/ssh/configs/config > ~/.ssh/config

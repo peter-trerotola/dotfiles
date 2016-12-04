@@ -1,0 +1,7 @@
+command -v tmux >/dev/null 2>&1 || { sudo apt-get install tmux -y; }
+echo Installing tmux configurations
+rm ~/.tmux.conf
+touch ~/.tmux.conf
+for f in ~/dotfiles/tmux/configs/*; do
+	 cat $f > ~/.tmux.conf
+done

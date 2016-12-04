@@ -1,0 +1,14 @@
+Host 192.168.42.28
+    User petros
+    ForwardAgent yes
+    IdentityFile ~/.ssh/keys/ptrerotolact_rsa
+
+Host *
+    User ptrerotola
+    ForwardAgent yes
+    IdentityFile ~/.ssh/keys/ptrerotolact_rsa
+
+Host github.com
+    HostName github.com
+    IdentityFile ~/.ssh/keys/petros
+    User peter-trerotola

@@ -1,0 +1,93 @@
+execute pathogen#infect()
+call plug#begin()
+
+set nocompatible
+set fileformat=unix
+" line numbers
+
+set mouse+=a
+if &term =~ '^screen'
+	" tmux knows the extended mouse mode
+	set ttymouse=xterm2
+endif
+
+set nu
+" syntax highlighting
+
+set ai "Auto indent
+set si "Smart indent
+
+syntax on
+" nice code
+
+" set background=dark
+ colorscheme desert
+" colorscheme wombat
+" g:molokai_original
+" colorscheme desert
+" colorscheme solarized
+" let g:solarized_degrade=0
+
+set background=dark
+
+set nobackup
+set nowb
+set noswapfile
+
+set ffs=unix,dos,mac
+
+set encoding=utf8
+
+filetype indent on
+set autoindent
+" search
+set ignorecase
+set tabstop=4
+set shiftwidth=4
+set smartindent
+set expandtab
+set lbr
+" I like highlighted search results
+set hlsearch
+" Use incremental searching
+set incsearch
+" disable arrow keys
+noremap <Up> <NOP>
+noremap <Down> <NOP>
+noremap <Left> <NOP>
+noremap <Right> <NOP>
+
+nmap <C-i> :tabnext<CR>
+map <C-i> :tabnext<CR>
+
+set number
+set viminfo='20,\"50,:20,%,n~/.viminfo
+
+autocmd FileType php noremap <C-k> :!/usr/bin/php -l %<CR>
+" modify selected text using combining diacritics
+
+map <C-n> :NERDTreeToggle<CR>
+let NERDTreeMapOpenInTab=1
+set laststatus=2
+let g:airline#extensions#tabline#enabled = 1
+let g:airline_theme='murmur'
+set clipboard=unnamed
+
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
+" autocomlete crap
+autocmd FileType php setlocal omnifunc=phpcd#CompletePHP
+set omnifunc=syntaxcomplete#Complete
+set completeopt=longest,menu,preview
+"imap <tab><tab> <c-x><c-o>
+
+"write as sudo
+cmap w!! %!sudo tee > /dev/null %
+call plug#end()

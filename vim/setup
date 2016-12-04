@@ -1,0 +1,8 @@
+command -v vim.nox >/dev/null 2>&1 || { sudo apt-get install vim vim.nox -y; }
+echo Installing vim configurations
+sudo mv /usr/bin/vim /usr/bin/vim.orig
+sudo ln -s /usr/bin/vim.nox /usr/bin/vim
+cat ~/dotfiles/vim/configs/vimrc > ~/.vimrc
+rm -rf ~/.vim
+mkdir -p ~/.vim
+rsync -a --delete ~/dotfiles/vim/configs/vim/* ~/.vim/
