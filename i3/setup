@@ -6,4 +6,4 @@ for app in i3 i3blocks rofi; do
 done
 echo Installing i3 configurations
 sudo mkdir -p ~/.config/i3
-cp ~/dotfiles/i3/configs/* ~/.config/i3/
+sudo cp ~/dotfiles/i3/configs/* ~/.config/i3/
