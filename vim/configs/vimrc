@@ -16,7 +16,7 @@ set nu
 set ai "Auto indent
 set si "Smart indent
 
-let g:neodark#background='black' 
+set background=dark
 syntax on
 " nice code
 
@@ -27,9 +27,8 @@ syntax on
 " colorscheme desert
 " colorscheme solarized
 " let g:solarized_degrade=0
-colorscheme neodark
+colorscheme jay
 
-set background=dark
 
 set nobackup
 set nowb
