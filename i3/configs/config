@@ -45,7 +45,7 @@ bindsym $mod+d exec rofi -show run -lines 10 -width 50
 # change focus
 bindsym $mod+j focus left
 bindsym $mod+k focus down
-# bindsym $mod+l focus up
+bindsym $mod+l focus up
 bindsym $mod+semicolon focus right
 
 # alternatively, you can use the cursor keys:
@@ -196,4 +196,4 @@ exec_always xmodmap -e 'keycode 66 = Control_L'
 exec_always xmodmap -e 'clear Lock'
 exec_always xmodmap -e 'add Control = Control_L'
 
-bindsym $mod+l exec /usr/local/bin/i3lock-fancy/lock 
+bindsym $mod+x exec /usr/local/bin/i3-fancy-lock/lock
