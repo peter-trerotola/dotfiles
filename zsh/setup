@@ -1,3 +1,6 @@
+for app in zsh; do
+	command -v $app >/dev/null 2>&1 || { sudo apt-get install $app -y; }
+done
 if [ ! -d ~/.oh-my-zsh ]; then
 	sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 fi

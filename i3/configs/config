@@ -166,6 +166,9 @@ bar {
 
 exec_always xinput set-prop "SynPS/2 Synaptics TouchPad" "libinput Natural Scrolling Enabled" 1
 exec_always xinput set-prop "SynPS/2 Synaptics TouchPad" "libinput Tapping Enabled" 1
+#Logitech Trackpad
+#exec_always xinput set-prop "Logitech Rechargeable Touchpad T650" "libinput Natural Scrolling Enabled" 1
+#exec_always xinput set-prop "Logitech Rechargeable Touchpad T650" "libinput Tapping Enabled" 1
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 0 +5% #increase sound volume
