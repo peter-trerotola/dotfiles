@@ -2,4 +2,4 @@ if [ ! -d ~/.oh-my-zsh ]; then
 	sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 fi
 sed -i "s/robbyrussell/pygmalion/g" ~/.zshrc
-sed -i "s/\(git\)/\git symfony2 composer vi-mode systemd redis-cli/" ~/.zshrc
+sed -i "s/(git)/(git symfony2 composer vi-mode systemd redis-cli)/" ~/.zshrc
