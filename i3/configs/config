@@ -30,7 +30,7 @@ font pango:monospace 8
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec mate-terminal
+bindsym $mod+Return exec gnome-terminal
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -45,7 +45,7 @@ bindsym $mod+d exec rofi -show run -lines 10 -width 50
 # change focus
 bindsym $mod+j focus left
 bindsym $mod+k focus down
-bindsym $mod+l focus up
+# bindsym $mod+l focus up
 bindsym $mod+semicolon focus right
 
 # alternatively, you can use the cursor keys:
@@ -123,8 +123,7 @@ bindsym $mod+Shift+0 move container to workspace 10
 
 assign [class="Google-chrome"] $ws1
 assign [class="Slack"] $ws2
-assign [class="Mate-terminal"] $ws3
-assign [class="Gnome-terminal"] $ws4
+assign [class="Gnome-terminal"] $ws3
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
@@ -196,3 +195,5 @@ exec --no-startup-id nohup blueman-applet > /dev/null 2>&1 &
 exec_always xmodmap -e 'keycode 66 = Control_L'
 exec_always xmodmap -e 'clear Lock'
 exec_always xmodmap -e 'add Control = Control_L'
+
+bindsym $mod+l exec /usr/local/bin/i3lock-fancy/lock 

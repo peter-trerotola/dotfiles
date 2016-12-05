@@ -7,3 +7,8 @@ done
 echo Installing i3 configurations
 sudo mkdir -p ~/.config/i3
 sudo cp ~/dotfiles/i3/configs/* ~/.config/i3/
+if [ ! -d /usr/local/bin/i3lock-fancy ]; then
+    cd /tmp/; git clone git@github.com:meskarune/i3lock-fancy.git
+    sudo mv /tmp/i3lock-fancy /usr/local/bin/
+    sudo rm -rf /tmp/i3lock-fancy
+fi
