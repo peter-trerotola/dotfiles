@@ -190,7 +190,6 @@ bindsym XF86AudioPrev exec playerctl previous
 
 exec google-chrome
 exec slack
-exec mate-terminal
 exec gnome-terminal
 exec --no-startup-id nm-applet
 exec --no-startup-id nohup blueman-applet > /dev/null 2>&1 &
@@ -200,3 +199,4 @@ exec_always xmodmap -e 'clear Lock'
 exec_always xmodmap -e 'add Control = Control_L'
 
 bindsym $mod+x exec /usr/local/bin/i3-fancy-lock/lock
+bindsym Print exec scrot '%Y-%m-%d_$wx$h.png' -e 'mv $f ~/Pictures/'

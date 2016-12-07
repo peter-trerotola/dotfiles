@@ -37,3 +37,9 @@
 [submodule "vim/configs/vim/bundle/tender.vim"]
 	path = vim/configs/vim/bundle/tender.vim
 	url = git@github.com:jacoborus/tender.vim.git
+[submodule "vim/configs/vim/bundle/ctrlp.vim"]
+	path = vim/configs/vim/bundle/ctrlp.vim
+	url = git@github.com:kien/ctrlp.vim.git
+[submodule "vim/configs/vim/bundle/minibufexpl.vim"]
+	path = vim/configs/vim/bundle/minibufexpl.vim
+	url = git@github.com:fholgado/minibufexpl.vim.git
