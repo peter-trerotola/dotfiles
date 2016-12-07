@@ -199,4 +199,4 @@ exec_always xmodmap -e 'clear Lock'
 exec_always xmodmap -e 'add Control = Control_L'
 
 bindsym $mod+x exec /usr/local/bin/i3-fancy-lock/lock
-bindsym Print exec scrot '%Y-%m-%d_$wx$h.png' -e 'mv $f ~/Pictures/'
+bindsym Print exec scrot '%Y-%m-%d_%h-%M-%s$wx$h.png' -e 'mv $f ~/Pictures/'
