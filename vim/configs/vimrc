@@ -59,8 +59,12 @@ noremap <Down> <NOP>
 noremap <Left> <NOP>
 noremap <Right> <NOP>
 
-nmap <C-i> :tabnext<CR>
-map <C-i> :tabnext<CR>
+"nmap <C-i> :tabnext<CR>
+"map <C-i> :tabnext<CR>
+nmap <C-Tab> :bn<CR>
+map <C-Tab> :bn<CR>
+nmap <S-Tab> :bp<CR>
+map <S-Tab> :bp<CR>
 
 set number
 set viminfo='20,\"50,:20,%,n~/.viminfo
@@ -72,7 +76,7 @@ map <C-n> :NERDTreeToggle<CR>
 let NERDTreeMapOpenInTab=1
 set laststatus=2
 let g:airline#extensions#tabline#enabled = 1
-let g:airline_theme='tender'
+"let g:airline_theme='tender'
 set clipboard=unnamed
 
 set statusline+=%#warningmsg#
