@@ -10,9 +10,6 @@
 [submodule "vim/configs/vim/bundle/php.vim"]
 	path = vim/configs/vim/bundle/php.vim
 	url = git@github.com:StanAngeloff/php.vim.git
-[submodule "vim/configs/vim/bundle/syntastic"]
-	path = vim/configs/vim/bundle/syntastic
-	url = git@github.com:vim-syntastic/syntastic.git
 [submodule "vim/configs/vim/bundle/vim-airline.vim"]
 	path = vim/configs/vim/bundle/vim-airline.vim
 	url = git@github.com:vim-airline/vim-airline.git
