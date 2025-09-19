@@ -1,5 +1,4 @@
 #!/bin/bash
-
 echo "Installing brew"
 export NONINTERACTIVE=1 
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -30,4 +29,3 @@ if [ ! -z "${SNOWFLAKE_PRIVATE_KEY}" ] && [ ! -z "${SNOWFLAKE_CLI_CONFIG}" ]; th
     chmod 600 ~/.keys/snowflake_private_key.pem && \
     echo $SNOWFLAKE_CLI_CONFIG > ~/.snowflake/config.toml
 fi
-
