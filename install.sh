@@ -15,7 +15,8 @@ brew install rsync tmux btop ripgrep zsh neovim && \
   git clone https://github.com/NvChad/starter ~/.config/nvim && \
   go install github.com/justjanne/powerline-go@latest && \
   curl -fsSL https://tailscale.com/install.sh | sh && \
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && \
+  curl -fsSL https://opencode.ai/install | bash 
 
 echo "Installing configs"
 cp .zshrc ~/ && \
