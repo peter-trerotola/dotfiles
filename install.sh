@@ -20,7 +20,7 @@ brew install rsync tmux btop ripgrep zsh neovim lua-language-server sst/tap/open
 echo "Installing configs"
 cp .zshrc ~/ && \
   cp .tmux.conf ~/ && \
-  rsync -av config ~/.config
+  rsync -av config/* ~/.config/
 
 if [ ! -z "${SNOWFLAKE_PRIVATE_KEY}" ] && [ ! -z "${SNOWFLAKE_CLI_CONFIG}" ]; then
   echo "Setting up snowflake config & private key"
