@@ -22,6 +22,9 @@ cp .zshrc ~/ && \
   cp .tmux.conf ~/ && \
   rsync -av config/* ~/.config/
 
+echo "Defaulting the shell to zsh"
+sudo chsh "$(id -un)" --shell "/usr/bin/zsh"
+
 if [ ! -z "${SNOWFLAKE_PRIVATE_KEY}" ] && [ ! -z "${SNOWFLAKE_CLI_CONFIG}" ]; then
   echo "Setting up snowflake config & private key"
   mkdir -p ~/.keys ~/.snowflake && \
