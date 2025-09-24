@@ -10,13 +10,12 @@ if [ "$(uname)" = "Linux" ]; then
 fi
 
 echo "Installing packages"
-brew install rsync tmux btop ripgrep zsh neovim && \
+brew install rsync tmux btop ripgrep zsh neovim lua-language-server sst/tap/opencode && \
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && \
   git clone https://github.com/NvChad/starter ~/.config/nvim && \
   go install github.com/justjanne/powerline-go@latest && \
   curl -fsSL https://tailscale.com/install.sh | sh && \
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && \
-  curl -fsSL https://opencode.ai/install | bash 
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 echo "Installing configs"
 cp .zshrc ~/ && \
