@@ -20,7 +20,8 @@ brew install rsync tmux btop ripgrep zsh neovim lua-language-server sst/tap/open
 echo "Installing configs"
 cp .zshrc ~/ && \
   cp .tmux.conf ~/ && \
-  rsync -av config/* ~/.config/
+  rsync -av config/* ~/.config/ && \
+  rsync -av .claude/* ~/.claude/
 
 echo "Defaulting the shell to zsh"
 sudo chsh "$(id -un)" --shell "/usr/bin/zsh"
