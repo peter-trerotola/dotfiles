@@ -17,14 +17,19 @@ brew install rsync tmux btop ripgrep zsh neovim lua-language-server sst/tap/open
   curl -fsSL https://tailscale.com/install.sh | sh && \
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
+echo "Defaulting the shell to zsh"
+sudo chsh "$(id -un)" --shell "/usr/bin/zsh"
+
 echo "Installing configs"
 cp .zshrc ~/ && \
   cp .tmux.conf ~/ && \
-  rsync -av config/* ~/.config/ && \
-  rsync -av .claude/* ~/.claude/
+  rsync -av config/* ~/.config/
 
-echo "Defaulting the shell to zsh"
-sudo chsh "$(id -un)" --shell "/usr/bin/zsh"
+if [ ! -z "${CLAUD_CONFIG}" ]; then
+  echo "Setting up claude config"
+  mkdir -p ~/.claude && \
+    echo $CLAUDE_CONFIG > ~/.claude/settings.yaml
+fi
 
 if [ ! -z "${SNOWFLAKE_PRIVATE_KEY}" ] && [ ! -z "${SNOWFLAKE_CLI_CONFIG}" ]; then
   echo "Setting up snowflake config & private key"

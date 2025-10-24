@@ -1,6 +1,0 @@
-{
-  "apiKeyHelper": "${VA_LLM_PROXY_API_KEY}",
-  "env": {
-    "ANTHROPIC_BASE_URL": "${ANTHROPIC_BASE_URL}"
-  }
-}
