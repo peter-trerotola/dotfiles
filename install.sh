@@ -28,7 +28,7 @@ cp .zshrc ~/ && \
 if [ ! -z "${CLAUD_CONFIG}" ]; then
   echo "Setting up claude config"
   mkdir -p ~/.claude && \
-    echo $CLAUDE_CONFIG > ~/.claude/settings.yaml
+    echo $CLAUDE_CONFIG > ~/.claude/settings.json
 fi
 
 if [ ! -z "${SNOWFLAKE_PRIVATE_KEY}" ] && [ ! -z "${SNOWFLAKE_CLI_CONFIG}" ]; then
