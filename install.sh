@@ -25,7 +25,7 @@ cp .zshrc ~/ && \
   cp .tmux.conf ~/ && \
   rsync -av config/* ~/.config/
 
-if [ ! -z "${CLAUD_CONFIG}" ]; then
+if [ ! -z "${CLAUDE_CONFIG}" ]; then
   echo "Setting up claude config"
   mkdir -p ~/.claude && \
     echo $CLAUDE_CONFIG > ~/.claude/settings.json
