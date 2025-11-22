@@ -1,5 +1,7 @@
 # dotfiles
 
+[![Test Dotfiles](https://github.com/peter-trerotola/dotfiles/actions/workflows/test.yml/badge.svg)](https://github.com/peter-trerotola/dotfiles/actions/workflows/test.yml)
+
 This repository contains the configurations for my dev environment and is used on GH linux codespaces or Mac OS.
 
 ## Features
