@@ -17,6 +17,9 @@ RUN apt-get update && apt-get install -y \
 RUN useradd -m -s /bin/bash testuser && \
     echo "testuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
+# Create code directory and test repo as root, then set ownership
+RUN mkdir -p /home/testuser/code/test-repo && chown -R testuser:testuser /home/testuser/code
+
 # Switch to test user
 USER testuser
 WORKDIR /home/testuser
@@ -27,9 +30,6 @@ COPY --chown=testuser:testuser . /home/testuser/dotfiles/
 WORKDIR /home/testuser/dotfiles
 
 # Set CODE_PATH for testing
-# Create a test repo directory to simulate a real workspace
-RUN mkdir -p /home/testuser/code/test-repo
-
 ENV CODE_PATH=/home/testuser/code
 ENV CLAUDE_REPO=file:///home/testuser/dotfiles/tests/fixtures/claude
 
