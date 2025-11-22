@@ -60,6 +60,20 @@ EOF
   rm /tmp/os-release
 }
 
+@test "detect_os returns 'linux' on Codespaces (even if Ubuntu)" {
+  export CODESPACES=true
+  mock_uname "Linux"
+  cat > /tmp/os-release <<EOF
+ID=ubuntu
+EOF
+  mock_os_release "/tmp/os-release"
+  run detect_os
+  [ "$status" -eq 0 ]
+  [ "$output" = "linux" ]
+  rm /tmp/os-release
+  unset CODESPACES
+}
+
 # =============================================================================
 # Template Processing Tests
 # =============================================================================

@@ -10,7 +10,10 @@ set -e
 # OS Detection
 # -----------------------------------------------------------------------------
 detect_os() {
-  if [ "$(uname)" = "Darwin" ]; then
+  # GitHub Codespaces: Always use Homebrew (linux mode)
+  if [ "$CODESPACES" = "true" ]; then
+    echo "linux"
+  elif [ "$(uname)" = "Darwin" ]; then
     echo "macos"
   elif [ -f "${OS_RELEASE_FILE:-/etc/os-release}" ]; then
     . "${OS_RELEASE_FILE:-/etc/os-release}"
