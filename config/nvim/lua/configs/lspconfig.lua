@@ -16,22 +16,11 @@ for _, lsp in ipairs(servers) do
   }
 end
 
+-- Configure gopls
+-- Note: For Bazel-specific configuration, you can set GOPACKAGESDRIVER and
+-- directoryFilters in your repo-specific Claude config's settings.json
 lspconfig["gopls"].setup {
-  on_attach = on_attach,
-  on_init = on_init,
-  capabilities = capabilities,
-  settings = {
-    gopls = {
-      env = {
-        GOPACKAGESDRIVER = "/workspaces/central/tools/bazel/go/gopackagesdriver.sh",
-      },
-      directoryFilters = {
-        "-bazel",
-        "-bazel-out",
-        "-bazel-bin",
-        "-bazel-testlogs",
-        "-bazel-logs",
-      },
-    },
-  },
+  on_attach = nvlsp.on_attach,
+  on_init = nvlsp.on_init,
+  capabilities = nvlsp.capabilities,
 }

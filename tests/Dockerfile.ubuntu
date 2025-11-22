@@ -1,0 +1,38 @@
+# Docker integration test for Ubuntu
+FROM ubuntu:24.04
+
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+ENV NONINTERACTIVE=1
+
+# Install basic dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    sudo \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create a test user (non-root)
+RUN useradd -m -s /bin/bash testuser && \
+    echo "testuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Create code directory and test repo as root, then set ownership
+RUN mkdir -p /home/testuser/code/test-repo && chown -R testuser:testuser /home/testuser/code
+
+# Switch to test user
+USER testuser
+WORKDIR /home/testuser
+
+# Copy dotfiles repo
+COPY --chown=testuser:testuser . /home/testuser/dotfiles/
+
+WORKDIR /home/testuser/dotfiles
+
+# Set CODE_PATH for testing
+ENV CODE_PATH=/home/testuser/code
+ENV CLAUDE_REPO=file:///home/testuser/dotfiles/tests/fixtures/claude
+ENV TEST_MODE=1
+
+# Test script will be run as CMD
+CMD ["bash", "tests/integration_test.sh"]

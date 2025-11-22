@@ -4,6 +4,11 @@
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
+# CODE_PATH: Set this to specify where your code repos live
+# Examples: ~/Code, ~/Work, /workspaces
+# This is used by sync-claude to sync Claude configurations
+# export CODE_PATH=~/Code
+
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time Oh My Zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
@@ -15,16 +20,14 @@ ZSH_THEME="robbyrussell"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git bazel brew docker docker-compose gh golang kubectl vi-mode)
+plugins=(git brew vi-mode bazel docker docker-compose gh golang kubectl)
+
 source $ZSH/oh-my-zsh.sh
 
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias vim="nvim"
-alias ciValidateWorkflow="bazel run -- //tools/va test --exclude-tags=skip-ci --current-commit"
-alias getToken="videoamp config get access_token | head -n 1 | awk '{print $2}' | pbcopy"
-alias justFailures="awk '/Failures:/{p=1;print;next} p&&/--- FAIL:/{p=0;next} p'"
 
 # Exports
 export GOPATH=~/go

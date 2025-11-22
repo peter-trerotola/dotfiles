@@ -1,0 +1,34 @@
+# Docker integration test for GitHub Codespaces (Debian-based)
+FROM mcr.microsoft.com/devcontainers/base:debian
+
+# Prevent interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+ENV NONINTERACTIVE=1
+
+# Install basic dependencies (Codespaces usually has these)
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    sudo \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create /workspaces directory as root and set permissions
+RUN mkdir -p /workspaces/test-repo && chown -R vscode:vscode /workspaces
+
+# Switch to vscode user (default in Codespaces)
+USER vscode
+WORKDIR /home/vscode
+
+# Copy dotfiles repo
+COPY --chown=vscode:vscode . /home/vscode/dotfiles/
+
+WORKDIR /home/vscode/dotfiles
+
+# Set CODE_PATH to test codespaces environment
+ENV CODE_PATH=/workspaces
+ENV CLAUDE_REPO=file:///home/vscode/dotfiles/tests/fixtures/claude
+ENV TEST_MODE=1
+
+# Test script
+CMD ["bash", "tests/integration_test.sh"]
