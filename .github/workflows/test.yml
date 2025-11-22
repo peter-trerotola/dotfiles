@@ -30,20 +30,31 @@ jobs:
       - name: Run unit tests
         run: ./tests/run_tests.sh --unit-only
 
-  # integration-tests:
-  #   name: Integration Tests
-  #   runs-on: ubuntu-latest
+  codespaces-integration:
+    name: Codespaces Integration Test
+    runs-on: ubuntu-latest
 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run Codespaces integration test
+        run: ./tests/run_tests.sh --codespaces-only
+
+  # ubuntu-integration:
+  #   name: Ubuntu Integration Test
+  #   runs-on: ubuntu-latest
+  #
   #   steps:
   #     - name: Checkout code
   #       uses: actions/checkout@v4
-
+  #
   #     - name: Set up Docker Buildx
   #       uses: docker/setup-buildx-action@v3
-
+  #
   #     - name: Run Ubuntu integration test
   #       run: ./tests/run_tests.sh --ubuntu-only
-
-  #     - name: Run Codespaces integration test
-  #       run: ./tests/run_tests.sh --codespaces-only
-  # Note: Integration tests disabled pending fixture setup debugging
+  # Note: Ubuntu integration test disabled pending fixture setup debugging
