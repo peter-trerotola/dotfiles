@@ -1,0 +1,13 @@
+# Test artifacts
+*.log
+*.tmp
+test-results/
+
+# BATS generated files
+*.tap
+
+# Fixture Claude repo (auto-generated)
+fixtures/claude/.git/
+
+# Docker build cache
+.dockercache/

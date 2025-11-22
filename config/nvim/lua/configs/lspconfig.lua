@@ -16,11 +16,13 @@ for _, lsp in ipairs(servers) do
   }
 end
 
-lspconfig["gopls"].setup {
-  on_attach = on_attach,
-  on_init = on_init,
-  capabilities = capabilities,
-  settings = {
+-- Conditionally configure gopls based on CONFIG_MODE
+local config_mode = os.getenv("CONFIG_MODE")
+local gopls_settings = {}
+
+-- Add Bazel-specific settings only when CONFIG_MODE is set (work environments)
+if config_mode and config_mode ~= "default" then
+  gopls_settings = {
     gopls = {
       env = {
         GOPACKAGESDRIVER = "/workspaces/central/tools/bazel/go/gopackagesdriver.sh",
@@ -33,5 +35,12 @@ lspconfig["gopls"].setup {
         "-bazel-logs",
       },
     },
-  },
+  }
+end
+
+lspconfig["gopls"].setup {
+  on_attach = on_attach,
+  on_init = on_init,
+  capabilities = capabilities,
+  settings = gopls_settings,
 }
