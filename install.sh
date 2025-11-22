@@ -86,10 +86,44 @@ install_packages() {
 }
 
 # -----------------------------------------------------------------------------
+# Go Installation (Ubuntu)
+# -----------------------------------------------------------------------------
+install_go_ubuntu() {
+  if command -v go &> /dev/null; then
+    echo "Go already installed: $(go version)"
+    return
+  fi
+
+  echo "Installing Go from golang.org..."
+
+  # Get latest Go version (or use a specific version)
+  GO_VERSION="1.23.4"
+  GO_ARCHIVE="go${GO_VERSION}.linux-amd64.tar.gz"
+  GO_URL="https://go.dev/dl/${GO_ARCHIVE}"
+
+  # Download and install
+  cd /tmp
+  curl -LO "$GO_URL"
+  sudo rm -rf /usr/local/go
+  sudo tar -C /usr/local -xzf "$GO_ARCHIVE"
+  rm "$GO_ARCHIVE"
+
+  # Add to PATH for current session
+  export PATH=$PATH:/usr/local/go/bin
+
+  echo "Go installed: $(go version)"
+}
+
+# -----------------------------------------------------------------------------
 # Additional Tools Setup
 # -----------------------------------------------------------------------------
 setup_additional_tools() {
   echo "Setting up additional tools..."
+
+  # Install Go on Ubuntu
+  if [ "$OS_TYPE" = "ubuntu" ]; then
+    install_go_ubuntu
+  fi
 
   # Tmux Plugin Manager
   if [ ! -d ~/.tmux/plugins/tpm ]; then

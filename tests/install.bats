@@ -75,6 +75,40 @@ EOF
 }
 
 # =============================================================================
+# Go Installation Tests (Ubuntu)
+# =============================================================================
+
+@test "install_go_ubuntu skips if go already installed" {
+  # Mock go command
+  function go() { echo "go version go1.23.4 linux/amd64"; }
+  export -f go
+
+  run install_go_ubuntu
+  [ "$status" -eq 0 ]
+  [[ "$output" =~ "Go already installed" ]]
+
+  unset -f go
+}
+
+@test "install_go_ubuntu uses correct version and URL" {
+  # Test that the function sets the correct variables
+  # We can't actually download and install in tests, but we can verify the logic
+
+  # Mock curl and sudo to verify commands
+  function curl() { echo "curl $@"; }
+  function sudo() { echo "sudo $@"; }
+  function go() { return 1; }  # Pretend go is not installed
+  export -f curl sudo go
+
+  run install_go_ubuntu
+  [ "$status" -eq 0 ]
+  [[ "$output" =~ "Installing Go from golang.org" ]]
+  [[ "$output" =~ "go1.23.4.linux-amd64.tar.gz" ]]
+
+  unset -f curl sudo go
+}
+
+# =============================================================================
 # Template Processing Tests
 # =============================================================================
 

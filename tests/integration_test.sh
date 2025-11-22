@@ -125,6 +125,9 @@ check_command "zsh"
 check_command "tmux"
 check_command "nvim"
 
+# Check Go installation (should be available in all environments)
+check_command "go"
+
 # Check config files were copied
 check_file() {
     local file=$1
