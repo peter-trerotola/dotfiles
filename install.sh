@@ -96,22 +96,99 @@ install_go_ubuntu() {
 
   echo "Installing Go from golang.org..."
 
-  # Get latest Go version (or use a specific version)
   GO_VERSION="1.23.4"
   GO_ARCHIVE="go${GO_VERSION}.linux-amd64.tar.gz"
   GO_URL="https://go.dev/dl/${GO_ARCHIVE}"
 
-  # Download and install
   cd /tmp
   curl -LO "$GO_URL"
   sudo rm -rf /usr/local/go
   sudo tar -C /usr/local -xzf "$GO_ARCHIVE"
   rm "$GO_ARCHIVE"
 
-  # Add to PATH for current session
   export PATH=$PATH:/usr/local/go/bin
-
   echo "Go installed: $(go version)"
+}
+
+# -----------------------------------------------------------------------------
+# Kubectl Installation (Ubuntu)
+# -----------------------------------------------------------------------------
+install_kubectl_ubuntu() {
+  if command -v kubectl &> /dev/null; then
+    echo "kubectl already installed: $(kubectl version --client --short 2>/dev/null || echo 'installed')"
+    return
+  fi
+
+  echo "Installing kubectl..."
+
+  cd /tmp
+  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+  rm kubectl
+
+  echo "kubectl installed"
+}
+
+# -----------------------------------------------------------------------------
+# Docker Installation (Ubuntu)
+# -----------------------------------------------------------------------------
+install_docker_ubuntu() {
+  if command -v docker &> /dev/null; then
+    echo "Docker already installed: $(docker --version)"
+    return
+  fi
+
+  echo "Installing Docker..."
+
+  # Install from Ubuntu repos
+  sudo apt-get install -y docker.io
+
+  # Add user to docker group
+  sudo usermod -aG docker $USER || true
+
+  echo "Docker installed"
+}
+
+# -----------------------------------------------------------------------------
+# Docker Compose Installation (Ubuntu)
+# -----------------------------------------------------------------------------
+install_docker_compose_ubuntu() {
+  if command -v docker-compose &> /dev/null; then
+    echo "docker-compose already installed: $(docker-compose --version)"
+    return
+  fi
+
+  echo "Installing docker-compose..."
+
+  COMPOSE_VERSION="2.32.4"
+  cd /tmp
+  curl -L "https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64" -o docker-compose
+  sudo install -o root -g root -m 0755 docker-compose /usr/local/bin/docker-compose
+  rm docker-compose
+
+  echo "docker-compose installed"
+}
+
+# -----------------------------------------------------------------------------
+# Lua Language Server Installation (Ubuntu)
+# -----------------------------------------------------------------------------
+install_lua_language_server_ubuntu() {
+  if command -v lua-language-server &> /dev/null; then
+    echo "lua-language-server already installed"
+    return
+  fi
+
+  echo "Installing lua-language-server..."
+
+  LUA_LS_VERSION="3.13.5"
+  cd /tmp
+  curl -L "https://github.com/LuaLS/lua-language-server/releases/download/${LUA_LS_VERSION}/lua-language-server-${LUA_LS_VERSION}-linux-x64.tar.gz" -o lua-ls.tar.gz
+  sudo mkdir -p /usr/local/lua-language-server
+  sudo tar -C /usr/local/lua-language-server -xzf lua-ls.tar.gz
+  sudo ln -sf /usr/local/lua-language-server/bin/lua-language-server /usr/local/bin/lua-language-server
+  rm lua-ls.tar.gz
+
+  echo "lua-language-server installed"
 }
 
 # -----------------------------------------------------------------------------
@@ -120,9 +197,13 @@ install_go_ubuntu() {
 setup_additional_tools() {
   echo "Setting up additional tools..."
 
-  # Install Go on Ubuntu
+  # Install dev tools on Ubuntu (not in default repos)
   if [ "$OS_TYPE" = "ubuntu" ]; then
     install_go_ubuntu
+    install_kubectl_ubuntu
+    install_docker_ubuntu
+    install_docker_compose_ubuntu
+    install_lua_language_server_ubuntu
   fi
 
   # Tmux Plugin Manager
