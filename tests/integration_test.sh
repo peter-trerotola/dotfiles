@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 # Integration test script for Docker-based testing
@@ -54,7 +54,10 @@ if [ -x "./install.sh" ]; then
     pass "install.sh is executable"
 else
     info "Making install.sh executable"
-    chmod +x ./install.sh
+    chmod +x ./install.sh || {
+        fail "chmod failed"
+        exit 1
+    }
     if [ -x "./install.sh" ]; then
         pass "install.sh is now executable"
     else
