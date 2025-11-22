@@ -6,7 +6,7 @@ set -e
 
 echo "=========================================="
 echo "Integration Test for install.sh"
-echo "CONFIG_MODE: ${CONFIG_MODE:-default}"
+echo "CODE_PATH: ${CODE_PATH:-not set}"
 echo "OS: $(uname -a)"
 echo "=========================================="
 
@@ -200,28 +200,30 @@ for component in agents commands skills hooks output-styles; do
 done
 
 # =============================================================================
-# CONFIG_MODE Specific Tests
+# CODE_PATH Specific Tests
 # =============================================================================
 
-if [[ "$CONFIG_MODE" == VideoAmp/* ]]; then
-    info "Verifying VideoAmp-specific configuration..."
+info "Verifying CODE_PATH-based configuration..."
 
-    # Check work-specific aliases in .zshrc
-    if grep -q "ciValidateWorkflow" "$HOME/.zshrc"; then
-        pass "VideoAmp aliases are present in .zshrc"
-    else
-        fail "VideoAmp aliases not found in .zshrc"
-    fi
+# Check that plugins are loaded in .zshrc
+if grep -q "bazel" "$HOME/.zshrc"; then
+    pass "Bazel plugin is configured"
+else
+    fail "Bazel plugin not found in .zshrc"
+fi
 
-    # Check work-specific plugins
-    if grep -q "bazel" "$HOME/.zshrc"; then
-        pass "Bazel plugin is configured"
-    else
-        fail "Bazel plugin not found in .zshrc"
-    fi
-
-    # Note: We can't easily test if packages were installed without actually installing them
-    # That would require running brew/apt which is tested separately
+# Check that CODE_PATH repos have .claude directories
+if [ -n "$CODE_PATH" ] && [ -d "$CODE_PATH" ]; then
+    for repo_dir in "$CODE_PATH"/*; do
+        if [ -d "$repo_dir" ]; then
+            repo_name=$(basename "$repo_dir")
+            if [ -d "$repo_dir/.claude" ]; then
+                pass "$repo_name has .claude directory"
+            else
+                fail "$repo_name missing .claude directory"
+            fi
+        fi
+    done
 fi
 
 # =============================================================================

@@ -17,18 +17,17 @@ This repository contains the configurations for my dev environment and is used o
 ### Basic Installation
 ```bash
 # Clone and run the installer
-./install.sh
-
-# Or with specific environment configuration
-CONFIG_MODE="work-org/main-repo" WORK_ORG_PATTERN="work-org/*" CLAUDE_REPO="git@github.com:user/claude-configs.git" ./install.sh
+CODE_PATH=~/Code CLAUDE_REPO="git@github.com:user/claude-configs.git" ./install.sh
 ```
 
 ### GitHub Codespaces
-Attach this dotfiles repo to your codespace configuration and set `CONFIG_MODE` in your codespace secrets.
+Attach this dotfiles repo to your codespace configuration and set these secrets:
+- `CODE_PATH` - Set to `/workspaces`
+- `CLAUDE_REPO` - Your private Claude configuration repository URL
 
-### Configuration Modes
-- `default` - Minimal personal setup
-- `work-org/main-repo` - Work environment with additional tools
+### Environment Variables
+- `CODE_PATH` - Directory where your code repos live (e.g., `~/Code`, `~/Work`, `/workspaces`)
+- `CLAUDE_REPO` - URL to your private Claude configuration repository
 - See `CLAUDE.md` for more details
 
 ## Testing

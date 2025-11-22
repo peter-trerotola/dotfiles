@@ -22,11 +22,11 @@ COPY --chown=vscode:vscode . /home/vscode/dotfiles/
 
 WORKDIR /home/vscode/dotfiles
 
-# Set CONFIG_MODE to test work environment
-ENV CONFIG_MODE=work-org/main-repo
-ENV WORK_ORG_PATTERN=work-org/*
+# Set CODE_PATH to test codespaces environment
+# Create a test repo directory to simulate a real workspace
+RUN mkdir -p /workspaces/test-repo
 
-# Mock the private Claude repo (since we can't access it in tests)
+ENV CODE_PATH=/workspaces
 ENV CLAUDE_REPO=file:///home/vscode/dotfiles/tests/fixtures/claude
 
 # Test script

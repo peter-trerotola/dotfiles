@@ -103,13 +103,13 @@ EOF
 @test "sync_claude_file uses repo-specific file when available" {
   export CLAUDE_CLONE_DIR="$TEST_HOME/claude-configs"
 
-  # Setup repo structure
-  mkdir -p "$CLAUDE_CLONE_DIR/work-org/main-repo"
+  # Setup repo structure (using repo name only, not org/repo)
+  mkdir -p "$CLAUDE_CLONE_DIR/central"
   mkdir -p "$CLAUDE_CLONE_DIR/default"
-  echo "repo-specific" > "$CLAUDE_CLONE_DIR/work-org/main-repo/CLAUDE.md"
+  echo "repo-specific" > "$CLAUDE_CLONE_DIR/central/CLAUDE.md"
   echo "default" > "$CLAUDE_CLONE_DIR/default/CLAUDE.md"
 
-  sync_claude_file "CLAUDE.md" "work-org/main-repo" "false"
+  sync_claude_file "CLAUDE.md" "central" "false" "$TEST_HOME/.claude"
 
   [ -f "$TEST_HOME/.claude/CLAUDE.md" ]
 
@@ -121,11 +121,11 @@ EOF
   export CLAUDE_CLONE_DIR="$TEST_HOME/claude-configs"
 
   # Setup repo structure (no repo-specific file)
-  mkdir -p "$CLAUDE_CLONE_DIR/work-org/main-repo"
+  mkdir -p "$CLAUDE_CLONE_DIR/central"
   mkdir -p "$CLAUDE_CLONE_DIR/default"
   echo "default" > "$CLAUDE_CLONE_DIR/default/CLAUDE.md"
 
-  sync_claude_file "CLAUDE.md" "work-org/main-repo" "false"
+  sync_claude_file "CLAUDE.md" "central" "false" "$TEST_HOME/.claude"
 
   [ -f "$TEST_HOME/.claude/CLAUDE.md" ]
 
@@ -136,10 +136,10 @@ EOF
 @test "sync_claude_file skips when neither repo-specific nor default exists" {
   export CLAUDE_CLONE_DIR="$TEST_HOME/claude-configs"
 
-  mkdir -p "$CLAUDE_CLONE_DIR/work-org/main-repo"
+  mkdir -p "$CLAUDE_CLONE_DIR/central"
   mkdir -p "$CLAUDE_CLONE_DIR/default"
 
-  run sync_claude_file "CLAUDE.md" "work-org/main-repo" "false"
+  run sync_claude_file "CLAUDE.md" "central" "false" "$TEST_HOME/.claude"
   [ "$status" -eq 0 ]
   [ ! -f "$TEST_HOME/.claude/CLAUDE.md" ]
 }
@@ -153,7 +153,7 @@ EOF
 {"key": "${MY_VAR}"}
 EOF
 
-  sync_claude_file "settings.json.template" "default" "true"
+  sync_claude_file "settings.json.template" "default" "true" "$TEST_HOME/.claude"
 
   [ -f "$TEST_HOME/.claude/settings.json" ]
 
@@ -163,12 +163,12 @@ EOF
 @test "sync_claude_component uses repo-specific directory when available" {
   export CLAUDE_CLONE_DIR="$TEST_HOME/claude-configs"
 
-  mkdir -p "$CLAUDE_CLONE_DIR/work-org/main-repo/agents"
+  mkdir -p "$CLAUDE_CLONE_DIR/central/agents"
   mkdir -p "$CLAUDE_CLONE_DIR/default/agents"
-  echo "repo-agent" > "$CLAUDE_CLONE_DIR/work-org/main-repo/agents/test.md"
+  echo "repo-agent" > "$CLAUDE_CLONE_DIR/central/agents/test.md"
   echo "default-agent" > "$CLAUDE_CLONE_DIR/default/agents/test.md"
 
-  run sync_claude_component "agents" "work-org/main-repo"
+  run sync_claude_component "agents" "central" "$TEST_HOME/.claude"
   [ "$status" -eq 0 ]
   [ -f "$TEST_HOME/.claude/agents/test.md" ]
 
@@ -179,11 +179,11 @@ EOF
 @test "sync_claude_component falls back to default directory" {
   export CLAUDE_CLONE_DIR="$TEST_HOME/claude-configs"
 
-  mkdir -p "$CLAUDE_CLONE_DIR/work-org/main-repo"
+  mkdir -p "$CLAUDE_CLONE_DIR/central"
   mkdir -p "$CLAUDE_CLONE_DIR/default/agents"
   echo "default-agent" > "$CLAUDE_CLONE_DIR/default/agents/test.md"
 
-  run sync_claude_component "agents" "work-org/main-repo"
+  run sync_claude_component "agents" "central" "$TEST_HOME/.claude"
   [ "$status" -eq 0 ]
   [ -f "$TEST_HOME/.claude/agents/test.md" ]
 
@@ -201,7 +201,7 @@ EOF
   echo "should-be-deleted" > "$TEST_HOME/.claude/agents/local-only.md"
   echo "from-source" > "$CLAUDE_CLONE_DIR/default/agents/source.md"
 
-  run sync_claude_component "agents" "default"
+  run sync_claude_component "agents" "default" "$TEST_HOME/.claude"
   [ "$status" -eq 0 ]
 
   # local-only.md should be deleted
@@ -211,36 +211,48 @@ EOF
 }
 
 # =============================================================================
-# CONFIG_MODE Tests
+# CODE_PATH Tests
 # =============================================================================
 
-@test "install_repo_specific_packages installs work packages when WORK_ORG_PATTERN matches" {
-  export CONFIG_MODE="work-org/main-repo"
-  export WORK_ORG_PATTERN="work-org/*"
-  export OS_TYPE="macos"
+@test "sync_claude requires CODE_PATH to be set" {
+  unset CODE_PATH
+  export CLAUDE_REPO="file://$PWD/tests/fixtures/claude"
 
-  # Mock brew command
-  mock_command brew
-
-  run install_repo_specific_packages
-  [ "$status" -eq 0 ]
-
-  # Check that brew was called (mocked)
-  # In a real test, we'd verify the packages list
+  run sync_claude
+  [ "$status" -eq 1 ]
+  [[ "$output" =~ "CODE_PATH" ]]
 }
 
-@test "install_repo_specific_packages skips packages when WORK_ORG_PATTERN doesn't match" {
-  export CONFIG_MODE="personal/project-name"
-  export WORK_ORG_PATTERN="work-org/*"
-  export OS_TYPE="macos"
+@test "sync_claude requires CLAUDE_REPO to be set" {
+  export CODE_PATH="$TEST_HOME/code"
+  unset CLAUDE_REPO
 
-  # Mock brew command
-  mock_command brew
+  run sync_claude
+  [ "$status" -eq 1 ]
+  [[ "$output" =~ "CLAUDE_REPO" ]]
+}
 
-  run install_repo_specific_packages
+@test "sync_claude syncs all repos under CODE_PATH" {
+  export CODE_PATH="$TEST_HOME/code"
+  export CLAUDE_CLONE_DIR="$TEST_HOME/claude-configs"
+  export CLAUDE_REPO="file://$PWD/tests/fixtures/claude"
+
+  # Setup fixture
+  setup_claude_fixture
+
+  # Create test repos under CODE_PATH
+  mkdir -p "$CODE_PATH/central"
+  mkdir -p "$CODE_PATH/test-repo"
+
+  run sync_claude
   [ "$status" -eq 0 ]
 
-  # Should not install work-specific packages
+  # Check that .claude dirs were created for each repo
+  [ -d "$CODE_PATH/central/.claude" ]
+  [ -d "$CODE_PATH/test-repo/.claude" ]
+
+  # Check that default config was synced to $HOME/.claude
+  [ -d "$HOME/.claude" ]
 }
 
 # =============================================================================
@@ -279,47 +291,24 @@ EOF
 # Integration-style Tests (Multiple Functions)
 # =============================================================================
 
-@test "setup_claude_config with default CONFIG_MODE" {
-  export CONFIG_MODE="default"
+@test "sync_repo_claude_config syncs repo-specific config" {
   export CLAUDE_CLONE_DIR="$TEST_HOME/claude-configs"
   export CLAUDE_REPO="file://$PWD/tests/fixtures/claude"
 
   # Setup fixture repo
   setup_claude_fixture
 
-  run setup_claude_config
+  # Clone the repo first
+  clone_or_update_claude_repo
+
+  # Create a test repo directory
+  local repo_path="$TEST_HOME/code/central"
+  mkdir -p "$repo_path"
+
+  run sync_repo_claude_config "$repo_path"
   [ "$status" -eq 0 ]
 
-  # Should have synced default components
-  [ -f "$TEST_HOME/.claude/settings.json" ]
-}
-
-@test "setup_claude_config with work-org/main-repo CONFIG_MODE" {
-  export CONFIG_MODE="work-org/main-repo"
-  export CLAUDE_CLONE_DIR="$TEST_HOME/claude-configs"
-  export CLAUDE_REPO="file://$PWD/tests/fixtures/claude"
-
-  # Setup fixture repo
-  setup_claude_fixture
-
-  run setup_claude_config
-  [ "$status" -eq 0 ]
-
-  # Should have synced components
-  [ -f "$TEST_HOME/.claude/settings.json" ]
-}
-
-@test "setup_claude_config falls back to default for missing config path" {
-  export CONFIG_MODE="NonExistent/config"
-  export CLAUDE_CLONE_DIR="$TEST_HOME/claude-configs"
-  export CLAUDE_REPO="file://$PWD/tests/fixtures/claude"
-
-  # Setup fixture repo
-  setup_claude_fixture
-
-  run setup_claude_config
-  [ "$status" -eq 0 ]
-
-  # Should fall back to default
-  [ -f "$TEST_HOME/.claude/settings.json" ]
+  # Should have synced components to repo's .claude directory
+  [ -f "$repo_path/.claude/settings.json" ]
+  [ -f "$repo_path/.claude/CLAUDE.md" ]
 }

@@ -4,43 +4,53 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a dotfiles repository for personal development environment configuration, designed to work on macOS, GitHub Codespaces (Linux), and Ubuntu Server. The repository provides a consistent shell, editor, and tooling setup across different environments with support for multiple environment profiles via `CONFIG_MODE`.
+This is a dotfiles repository for personal development environment configuration, designed to work on macOS, GitHub Codespaces (Linux), and Ubuntu Server. The repository provides a consistent shell, editor, and tooling setup across different environments with automatic Claude Code configuration syncing per repository via `CODE_PATH`.
 
 ## Installation and Setup
 
 ### Basic Installation
 ```bash
-# Clone and run the installer with default configuration
-./install.sh
+# Set CODE_PATH to where your code repos live and run the installer
+CODE_PATH=~/Code CLAUDE_REPO="git@github.com:user/claude-configs.git" ./install.sh
 
-# Install with specific environment configuration
-CONFIG_MODE="work-org/main-repo" ./install.sh
-
-# For GitHub Codespaces: attach this dotfiles repo and set CONFIG_MODE in secrets
+# For different environments:
+# Personal laptop:   CODE_PATH=~/Code
+# Work laptop:       CODE_PATH=~/Work
+# GitHub Codespaces: CODE_PATH=/workspaces
 ```
 
-### CONFIG_MODE System
+### CODE_PATH System
 
-The `CONFIG_MODE` environment variable determines which packages are installed and which Claude Code configuration is used. This supports multiple work environments and personal setups from a single dotfiles repository.
+The `CODE_PATH` environment variable points to the directory where your code repositories live. The installer syncs Claude Code configurations to all repositories under this path based on repository name.
 
 **How it works:**
-- If `CONFIG_MODE` is unset or set to `"default"`: Installs core packages only, uses default Claude configuration
-- If set to a repo path (e.g., `"work-org/main-repo"`): Installs core + repo-specific packages, uses matching Claude configuration with fallback to defaults
+1. `CODE_PATH` is set to your workspace directory (e.g., `~/Code`, `~/Work`, `/workspaces`)
+2. During installation, `sync-claude` iterates through all directories under `CODE_PATH/*`
+3. For each repo directory (e.g., `~/Code/central`), it:
+   - Extracts the repo name (`central`)
+   - Looks for matching config in your private Claude repo
+   - Syncs repo-specific config to `~/Code/central/.claude`
+   - Falls back to default config if repo-specific doesn't exist
+4. Also syncs default config to `$HOME/.claude` for general use
 
-**Available CONFIG_MODE values:**
-- `default` - Minimal personal setup
-- `work-org/main-repo` - Work organization main repository
-- `work-org/other-repo` - Work organization other repository
-- `personal/project-name` - Personal project
-- (Add new configurations by creating folders in the private Claude repo)
+**Example directory structure:**
+```
+~/Code/           <- CODE_PATH
+├── central/      <- Repo gets 'central' Claude config
+│   └── .claude/
+├── platform/     <- Repo gets 'platform' Claude config
+│   └── .claude/
+└── side-project/ <- Repo gets 'side-project' Claude config (or default if not found)
+    └── .claude/
+```
 
-### Package Installation by CONFIG_MODE
+### Package Installation
 
-**Core packages** (installed in all modes):
+All packages are installed regardless of environment (work and personal packages):
+
+**Packages:**
 - rsync, tmux, btop, ripgrep, zsh, neovim, lua-language-server
-
-**Work-specific packages** (installed only when CONFIG_MODE matches work pattern, e.g., "work-org/*"):
-- bazel, kubectl, docker, docker-compose, golang, gh, and other work-specific tools
+- bazel, kubectl, docker, docker-compose, golang, gh, and other development tools
 
 **Platform support:**
 - **macOS & Linux Codespaces**: Uses Homebrew for all packages
@@ -50,12 +60,12 @@ The `CONFIG_MODE` environment variable determines which packages are installed a
 
 ### Private Configuration Repository
 
-Claude configurations are stored in a separate private repository specified via the `CLAUDE_REPO` environment variable.
+Claude configurations are stored in a separate private repository specified via the `CLAUDE_REPO` environment variable. Configs are organized by repository name (not organization/repo).
 
 **Expected structure:**
 ```
 claude/
-├── default/                           # Fallback configuration for all modes
+├── default/                           # Fallback configuration (used by $HOME/.claude and repos without specific configs)
 │   ├── settings.json.template         # Settings with env var substitution
 │   ├── CLAUDE.md                      # Project memory/guidance
 │   ├── agents/                        # Custom AI subagents (*.md files)
@@ -63,23 +73,26 @@ claude/
 │   ├── skills/                        # Skills with SKILL.md structure
 │   ├── hooks/                         # Hook scripts
 │   └── output-styles/                 # Custom output styles
-├── work-org/
-│   ├── main-repo/
-│   │   ├── settings.json.template     # Repo-specific settings (optional)
-│   │   ├── CLAUDE.md                  # Repo-specific guidance (optional)
-│   │   ├── agents/                    # Repo-specific agents (optional)
-│   │   └── ...                        # Other components (optional)
-│   └── other-repo/
-│       └── ... (same structure, all components optional)
-└── personal/
-    └── project-name/
-        └── ... (same structure)
+├── central/                           # Config for any repo named 'central'
+│   ├── settings.json.template         # Repo-specific settings (optional)
+│   ├── CLAUDE.md                      # Repo-specific guidance (optional)
+│   ├── agents/                        # Repo-specific agents (optional)
+│   └── ...                            # Other components (optional)
+├── platform/                          # Config for any repo named 'platform'
+│   └── ... (same structure, all components optional)
+└── my-side-project/                   # Config for any repo named 'my-side-project'
+    └── ... (same structure)
 ```
+
+**Note:** Directory names in the Claude repo should match the **basename** of your repositories under CODE_PATH. For example:
+- `~/Code/work-org/central` → uses `central` config
+- `~/Code/personal/central` → also uses `central` config (same name)
+- You can organize repos however you want locally; only the final directory name matters
 
 ### Layered Fallback System
 
-For each Claude Code component, the installation script uses this precedence:
-1. **Repo-specific**: Check if component exists in `CONFIG_MODE` path (e.g., `work-org/main-repo/agents/`)
+For each Claude Code component, `sync-claude` uses this precedence:
+1. **Repo-specific**: Check if component exists in repo name path (e.g., `central/agents/`)
 2. **Default fallback**: If not found, use `default/` path (e.g., `default/agents/`)
 3. **Skip**: If not in either location, skip that component
 
@@ -116,8 +129,8 @@ The private Claude repo is cloned to `~/.dotfiles-claude-configs/` and updated o
 
 ```
 .
-├── install.sh              # Main installation script with CONFIG_MODE support
-├── .zshrc                  # Zsh configuration with conditional loading
+├── install.sh              # Main installation script with CODE_PATH support
+├── .zshrc                  # Zsh configuration
 ├── .tmux.conf             # Tmux configuration with plugins
 ├── CLAUDE.md              # This file
 └── config/
@@ -125,7 +138,7 @@ The private Claude repo is cloned to `~/.dotfiles-claude-configs/` and updated o
     │   ├── init.lua       # Entry point for Neovim config
     │   └── lua/
     │       ├── configs/   # LSP and tool configurations
-    │       │   └── lspconfig.lua  # Conditional gopls config
+    │       │   └── lspconfig.lua  # gopls and other LSP configs
     │       └── plugins/   # Plugin configurations
     └── btop/              # btop system monitor configuration
 ```
@@ -134,16 +147,13 @@ The private Claude repo is cloned to `~/.dotfiles-claude-configs/` and updated o
 
 ### Zsh Configuration
 - Theme: robbyrussell
-- Uses powerline-go for enhanced prompt (shows CONFIG_MODE when set)
-- Oh My Zsh with conditional plugin loading based on CONFIG_MODE
+- Uses powerline-go for enhanced prompt
+- Oh My Zsh with all plugins loaded
 
-**Base plugins** (all environments): git, brew, vi-mode
-
-**Work-specific plugins** (when CONFIG_MODE matches work pattern): bazel, docker, docker-compose, gh, golang, kubectl
+**Plugins (always loaded):** git, brew, vi-mode, bazel, docker, docker-compose, gh, golang, kubectl
 
 **Aliases:**
-- `vim` → `nvim` (always available)
-- Work-specific aliases are loaded conditionally based on CONFIG_MODE pattern matching
+- `vim` → `nvim`
 
 ### Neovim Setup
 - Based on **NvChad v2.5** (imported as a plugin)
@@ -153,13 +163,10 @@ The private Claude repo is cloned to `~/.dotfiles-claude-configs/` and updated o
 - File tree width set to 60 characters
 
 **gopls LSP configuration:**
-- Reads `CONFIG_MODE` environment variable at startup
-- When CONFIG_MODE is set (non-default), adds Bazel-specific settings:
-  - `GOPACKAGESDRIVER` path for Bazel integration
-  - Directory filters to exclude bazel-* folders
-- When CONFIG_MODE is unset or "default", uses standard gopls settings
+- Uses standard gopls settings
+- For Bazel-specific configuration, customize via repo-specific Claude config
 
-Location: `config/nvim/lua/configs/lspconfig.lua:19-46`
+Location: `config/nvim/lua/configs/lspconfig.lua:19-26`
 
 ### Tmux Configuration
 - Mouse mode enabled
@@ -169,12 +176,12 @@ Location: `config/nvim/lua/configs/lspconfig.lua:19-46`
 
 ## Making Changes
 
-### Adding a New Environment Configuration
+### Adding a New Repository Claude Configuration
 
-1. **Create folder structure in private Claude repo:**
+1. **Create folder in private Claude repo** (named by repository basename):
    ```bash
    cd ~/.dotfiles-claude-configs
-   mkdir -p NewOrg/new-repo
+   mkdir -p my-new-repo
    ```
 
 2. **Add components** (all optional, will fall back to default/):
@@ -184,14 +191,16 @@ Location: `config/nvim/lua/configs/lspconfig.lua:19-46`
 
 3. **Commit and push** to private Claude repo
 
-4. **Use the new configuration:**
+4. **Sync Claude configs to all repos:**
    ```bash
-   CONFIG_MODE="NewOrg/new-repo" ./install.sh
+   # Option 1: Re-run installer (also updates packages/configs)
+   ./install.sh
+
+   # Option 2: Just sync Claude configs
+   source ./install.sh && sync-claude
    ```
 
-5. **Update .zshrc or install.sh** if special package requirements:
-   - Add conditional package installation in `install_repo_specific_packages()`
-   - Add conditional aliases/plugins in `.zshrc`
+5. **Verify sync** - Check that `$CODE_PATH/my-new-repo/.claude/` was created
 
 ### Modifying Configuration Files
 
@@ -211,7 +220,10 @@ rsync -av config/* ~/.config/
 **Claude Code configuration:**
 - Edit files in `~/.dotfiles-claude-configs/` (the private repo clone)
 - Commit and push changes
-- Re-run `install.sh` to update `~/.claude/`
+- Re-run `sync-claude` to update all repos:
+  ```bash
+  source ./install.sh && sync-claude
+  ```
 
 ### Adding New Neovim Plugins
 Add plugins to `config/nvim/lua/plugins/init.lua`:
@@ -234,9 +246,9 @@ Edit `config/nvim/lua/configs/lspconfig.lua`:
 
 The `install.sh` script is organized into logical sections:
 - **OS Detection**: `detect_os()` function
-- **Package Manager**: `install_package_manager()`, `install_core_packages()`, `install_repo_specific_packages()`
+- **Package Manager**: `install_package_manager()`, `install_packages()`
 - **Additional Tools**: `setup_additional_tools()` (tmux, nvim, oh-my-zsh, etc.)
-- **Claude Config**: `setup_claude_config()`, `sync_claude_component()`, `sync_claude_file()`
+- **Claude Config**: `sync_claude()`, `sync_repo_claude_config()`, `sync_claude_component()`, `sync_claude_file()`
 - **Config Files**: `install_config_files()`
 - **Main Flow**: `main()` orchestrates everything
 
@@ -249,15 +261,15 @@ When modifying:
 ## Environment Variables
 
 ### Primary Configuration
-- **CONFIG_MODE**: Selects which environment configuration to use (default: "default")
-  - Examples: `"work-org/main-repo"`, `"personal/project-name"`
-- **CLAUDE_REPO**: URL to private Claude configuration repository (optional, required for Claude config sync)
+- **CODE_PATH**: **Required**. Directory where your code repositories live
+  - Personal laptop: `~/Code`
+  - Work laptop: `~/Work`
+  - GitHub Codespaces: `/workspaces`
+- **CLAUDE_REPO**: **Required**. URL to private Claude configuration repository
   - Example: `"git@github.com:username/claude-configs.git"`
-- **WORK_ORG_PATTERN**: Pattern to match work-related CONFIG_MODE values for installing work-specific packages (optional)
-  - Example: `"work-org/*"` (matches any CONFIG_MODE starting with "work-org/")
 
 ### Legacy Support (Backward Compatibility)
-- **CLAUDE_CONFIG**: JSON configuration written directly to `~/.claude/settings.json` (overrides CONFIG_MODE)
+- **CLAUDE_CONFIG**: JSON configuration written directly to `~/.claude/settings.json`
 - **SNOWFLAKE_PRIVATE_KEY**: Private key for Snowflake (written to `~/.keys/snowflake_private_key.pem`)
 - **SNOWFLAKE_CLI_CONFIG**: Snowflake CLI config (written to `~/.snowflake/config.toml`)
 

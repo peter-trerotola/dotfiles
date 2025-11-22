@@ -62,37 +62,24 @@ install_package_manager() {
 # -----------------------------------------------------------------------------
 # Package Installation
 # -----------------------------------------------------------------------------
-install_core_packages() {
-  echo "Installing core packages..."
+install_packages() {
+  echo "Installing packages..."
 
   case $OS_TYPE in
     macos|linux)
+      # Core packages
       brew install rsync tmux btop ripgrep zsh neovim lua-language-server
+      # Additional packages (previously work-specific, now always installed)
+      brew install bazel kubectl docker docker-compose golang gh sst/tap/opencode
       ;;
     ubuntu)
+      # Core packages
       sudo apt-get install -y rsync tmux btop ripgrep zsh neovim lua-language-server git curl
+      # Additional packages
+      sudo apt-get install -y kubectl docker.io docker-compose golang-go
+      # Note: Bazel and other tools may need manual installation on Ubuntu
       ;;
   esac
-}
-
-install_repo_specific_packages() {
-  echo "Installing repo-specific packages for: $CONFIG_MODE"
-
-  # Check if this is a work-related config
-  # Set WORK_ORG_PATTERN to match your work organization (e.g., "work-org/*")
-  local work_pattern="${WORK_ORG_PATTERN:-__no_match__}"
-
-  if [[ "$CONFIG_MODE" == $work_pattern ]]; then
-    case $OS_TYPE in
-      macos|linux)
-        brew install bazel kubectl docker docker-compose golang gh sst/tap/opencode
-        ;;
-      ubuntu)
-        sudo apt-get install -y kubectl docker.io docker-compose golang-go
-        # Note: Bazel and other tools may need manual installation on Ubuntu
-        ;;
-    esac
-  fi
 }
 
 # -----------------------------------------------------------------------------
@@ -128,7 +115,7 @@ setup_additional_tools() {
 }
 
 # -----------------------------------------------------------------------------
-# Claude Configuration with Layered Fallback
+# Claude Configuration with CODE_PATH-based Syncing
 # -----------------------------------------------------------------------------
 CLAUDE_REPO="${CLAUDE_REPO:-}"  # Set via environment variable
 CLAUDE_CLONE_DIR="$HOME/.dotfiles-claude-configs"
@@ -165,52 +152,52 @@ EOF
 # Sync a directory component with fallback to default
 sync_claude_component() {
   local component_name="$1"  # e.g., "agents", "commands", "skills"
-  local config_path="$2"      # e.g., "VideoAmp/central" or "default"
+  local repo_name="$2"       # e.g., "central" or "default"
+  local target_base="$3"     # Target base directory (e.g., ~/.claude or ~/Code/central/.claude)
 
-  local repo_specific_path="$CLAUDE_CLONE_DIR/$config_path/$component_name"
+  local repo_specific_path="$CLAUDE_CLONE_DIR/$repo_name/$component_name"
   local default_path="$CLAUDE_CLONE_DIR/default/$component_name"
-  local target_path="$HOME/.claude/$component_name"
+  local target_path="$target_base/$component_name"
 
   # Determine source: repo-specific or default
   local source_path=""
   if [ -d "$repo_specific_path" ]; then
     source_path="$repo_specific_path"
-    echo "  Using repo-specific $component_name from $config_path"
+    echo "    Using repo-specific $component_name for $repo_name"
   elif [ -d "$default_path" ]; then
     source_path="$default_path"
-    echo "  Using default $component_name (not found in $config_path)"
+    echo "    Using default $component_name"
   else
-    echo "  Skipping $component_name (not found in repo-specific or default)"
+    echo "    Skipping $component_name (not found)"
     return
   fi
 
   # Sync to target
-  # Note: Using --delete to ensure clean sync. Any local-only files will be removed.
-  # To keep local files, remove them from ~/.claude/ and add to .gitignore in the private repo
   mkdir -p "$target_path"
-  rsync -av --delete "$source_path/" "$target_path/"
+  rsync -av --delete "$source_path/" "$target_path/" > /dev/null
 }
 
 # Sync a single file component with fallback to default
 sync_claude_file() {
-  local file_name="$1"        # e.g., "CLAUDE.md"
-  local config_path="$2"      # e.g., "VideoAmp/central" or "default"
+  local file_name="$1"        # e.g., "CLAUDE.md" or "settings.json.template"
+  local repo_name="$2"        # e.g., "central" or "default"
   local is_template="$3"      # "true" if needs template processing
+  local target_base="$4"      # Target base directory
 
-  local repo_specific_file="$CLAUDE_CLONE_DIR/$config_path/$file_name"
+  local repo_specific_file="$CLAUDE_CLONE_DIR/$repo_name/$file_name"
   local default_file="$CLAUDE_CLONE_DIR/default/$file_name"
-  local target_file="$HOME/.claude/${file_name%.template}"
+  local target_file="$target_base/${file_name%.template}"
 
   # Determine source: repo-specific or default
   local source_file=""
   if [ -f "$repo_specific_file" ]; then
     source_file="$repo_specific_file"
-    echo "  Using repo-specific $file_name from $config_path"
+    echo "    Using repo-specific $file_name for $repo_name"
   elif [ -f "$default_file" ]; then
     source_file="$default_file"
-    echo "  Using default $file_name (not found in $config_path)"
+    echo "    Using default $file_name"
   else
-    echo "  Skipping $file_name (not found in repo-specific or default)"
+    echo "    Skipping $file_name (not found)"
     return
   fi
 
@@ -225,45 +212,77 @@ sync_claude_file() {
   fi
 }
 
-setup_claude_config() {
-  local config_path="${CONFIG_MODE:-default}"
+# Sync Claude config for a single repo
+sync_repo_claude_config() {
+  local repo_path="$1"
+  local repo_name=$(basename "$repo_path")
+  local claude_dir="$repo_path/.claude"
 
-  # Skip if CLAUDE_REPO is not set
-  if [ -z "$CLAUDE_REPO" ]; then
-    echo "Skipping Claude Code configuration (CLAUDE_REPO not set)"
-    return 0
+  echo "  Syncing Claude config for: $repo_name"
+
+  mkdir -p "$claude_dir"
+
+  # Sync components with layered fallback
+  sync_claude_file "settings.json.template" "$repo_name" "true" "$claude_dir"
+  sync_claude_file "CLAUDE.md" "$repo_name" "false" "$claude_dir"
+  sync_claude_component "agents" "$repo_name" "$claude_dir"
+  sync_claude_component "commands" "$repo_name" "$claude_dir"
+  sync_claude_component "skills" "$repo_name" "$claude_dir"
+  sync_claude_component "hooks" "$repo_name" "$claude_dir"
+  sync_claude_component "output-styles" "$repo_name" "$claude_dir"
+}
+
+# Main sync function - syncs all repos under CODE_PATH
+sync_claude() {
+  # Validate CODE_PATH is set
+  if [ -z "$CODE_PATH" ]; then
+    echo "ERROR: CODE_PATH environment variable is not set"
+    echo "Set CODE_PATH to your workspace directory (e.g., ~/Code, ~/Work, /workspaces)"
+    return 1
   fi
 
-  echo "Setting up Claude Code configuration for: $config_path"
+  # Validate CLAUDE_REPO is set
+  if [ -z "$CLAUDE_REPO" ]; then
+    echo "ERROR: CLAUDE_REPO environment variable is not set"
+    echo "Set CLAUDE_REPO to your Claude configuration repository URL"
+    return 1
+  fi
+
+  # Validate CODE_PATH exists
+  if [ ! -d "$CODE_PATH" ]; then
+    echo "ERROR: CODE_PATH directory does not exist: $CODE_PATH"
+    return 1
+  fi
+
+  echo "Syncing Claude configurations..."
+  echo "CODE_PATH: $CODE_PATH"
+  echo "CLAUDE_REPO: $CLAUDE_REPO"
 
   # Clone or update the Claude config repository
   clone_or_update_claude_repo
 
-  # Verify the config path exists (at least as an empty directory)
-  if [ ! -d "$CLAUDE_CLONE_DIR/$config_path" ] && [ "$config_path" != "default" ]; then
-    echo "WARNING: Config path '$config_path' not found in Claude repo. Falling back to default."
-    config_path="default"
-  fi
+  # Sync default config to $HOME/.claude
+  echo ""
+  echo "  Syncing default config to $HOME/.claude"
+  mkdir -p "$HOME/.claude"
+  sync_claude_file "settings.json.template" "default" "true" "$HOME/.claude"
+  sync_claude_file "CLAUDE.md" "default" "false" "$HOME/.claude"
+  sync_claude_component "agents" "default" "$HOME/.claude"
+  sync_claude_component "commands" "default" "$HOME/.claude"
+  sync_claude_component "skills" "default" "$HOME/.claude"
+  sync_claude_component "hooks" "default" "$HOME/.claude"
+  sync_claude_component "output-styles" "default" "$HOME/.claude"
 
-  # Create .claude directory
-  mkdir -p ~/.claude
+  # Iterate through all repos under CODE_PATH
+  echo ""
+  echo "Syncing repo-specific configs..."
+  for repo_dir in "$CODE_PATH"/*; do
+    if [ -d "$repo_dir" ]; then
+      sync_repo_claude_config "$repo_dir"
+    fi
+  done
 
-  # Sync components with layered fallback
-  echo "Syncing Claude Code components..."
-
-  # Settings (template processing required)
-  sync_claude_file "settings.json.template" "$config_path" "true"
-
-  # CLAUDE.md (optional, no template processing)
-  sync_claude_file "CLAUDE.md" "$config_path" "false"
-
-  # Directory components
-  sync_claude_component "agents" "$config_path"
-  sync_claude_component "commands" "$config_path"
-  sync_claude_component "skills" "$config_path"
-  sync_claude_component "hooks" "$config_path"
-  sync_claude_component "output-styles" "$config_path"
-
+  echo ""
   echo "Claude Code configuration complete!"
 }
 
@@ -322,23 +341,30 @@ setup_legacy_env_vars() {
 main() {
   echo "============================================="
   echo "Dotfiles Installation"
-  echo "CONFIG_MODE: ${CONFIG_MODE:-default}"
+  echo "CODE_PATH: ${CODE_PATH:-not set}"
+  echo "CLAUDE_REPO: ${CLAUDE_REPO:-not set}"
   echo "============================================="
 
-  install_package_manager
-  install_core_packages
-
-  # Install repo-specific packages if CONFIG_MODE is set
-  if [ ! -z "$CONFIG_MODE" ] && [ "$CONFIG_MODE" != "default" ]; then
-    install_repo_specific_packages
+  # Validate CODE_PATH is set
+  if [ -z "$CODE_PATH" ]; then
+    echo ""
+    echo "ERROR: CODE_PATH environment variable must be set"
+    echo "Set CODE_PATH to your workspace directory:"
+    echo "  - Personal laptop: export CODE_PATH=~/Code"
+    echo "  - Work laptop: export CODE_PATH=~/Work"
+    echo "  - Codespaces: export CODE_PATH=/workspaces"
+    echo ""
+    exit 1
   fi
 
+  install_package_manager
+  install_packages
   setup_additional_tools
   install_config_files
   setup_shell
 
-  # Setup Claude configuration (always run, uses default if CONFIG_MODE not set)
-  setup_claude_config
+  # Sync Claude configurations to all repos under CODE_PATH
+  sync_claude
 
   # Legacy environment variable support
   setup_legacy_env_vars
@@ -347,6 +373,7 @@ main() {
   echo "============================================="
   echo "Installation complete!"
   echo "Please restart your shell or run: source ~/.zshrc"
+  echo "To sync Claude configs later, run: sync-claude"
   echo "============================================="
 }
 

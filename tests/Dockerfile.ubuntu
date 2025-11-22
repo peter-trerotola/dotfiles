@@ -26,10 +26,11 @@ COPY --chown=testuser:testuser . /home/testuser/dotfiles/
 
 WORKDIR /home/testuser/dotfiles
 
-# Set default CONFIG_MODE for testing
-ENV CONFIG_MODE=default
+# Set CODE_PATH for testing
+# Create a test repo directory to simulate a real workspace
+RUN mkdir -p /home/testuser/code/test-repo
 
-# Mock the private Claude repo (since we can't access it in tests)
+ENV CODE_PATH=/home/testuser/code
 ENV CLAUDE_REPO=file:///home/testuser/dotfiles/tests/fixtures/claude
 
 # Test script will be run as CMD

@@ -59,6 +59,7 @@ mock_git_pull() {
 # =============================================================================
 
 # Setup a mock Claude config repository
+# With CODE_PATH system, configs are named by repo basename only
 setup_claude_fixture() {
   local fixture_dir="$PWD/tests/fixtures/claude"
 
@@ -83,19 +84,25 @@ EOF
   echo "# Default agent" > default/agents/default.md
   echo "# Default command" > default/commands/test.md
 
-  # Create work-org/main-repo config
-  mkdir -p work-org/main-repo/agents
-  cat > work-org/main-repo/settings.json.template <<EOF
+  # Create test-repo config (used by Docker tests)
+  mkdir -p test-repo/agents
+  cat > test-repo/settings.json.template <<EOF
 {
-  "test": "work-\${TEST_VAR:-empty}"
+  "test": "test-repo-\${TEST_VAR:-empty}"
 }
 EOF
-  echo "# Work Org Main Repo CLAUDE.md" > work-org/main-repo/CLAUDE.md
-  echo "# Work org agent" > work-org/main-repo/agents/work.md
+  echo "# Test Repo CLAUDE.md" > test-repo/CLAUDE.md
+  echo "# Test repo agent" > test-repo/agents/test.md
 
-  # Create personal configs
-  mkdir -p personal/project-name
-  echo "# Personal Project CLAUDE.md" > personal/project-name/CLAUDE.md
+  # Create central config (example repo)
+  mkdir -p central/agents
+  cat > central/settings.json.template <<EOF
+{
+  "test": "central-\${TEST_VAR:-empty}"
+}
+EOF
+  echo "# Central Repo CLAUDE.md" > central/CLAUDE.md
+  echo "# Central repo agent" > central/agents/central.md
 
   # Commit everything
   git add .
