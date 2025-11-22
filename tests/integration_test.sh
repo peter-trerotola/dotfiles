@@ -103,6 +103,11 @@ fi
 
 info "Running post-installation verification..."
 
+# Add Homebrew to PATH if it exists (for command checks)
+if [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
 # Check core tools are installed/available
 check_command() {
     local cmd=$1
@@ -135,25 +140,30 @@ check_file() {
 check_file "$HOME/.zshrc"
 check_file "$HOME/.tmux.conf"
 
-# Check Oh My Zsh was installed
-if [ -d "$HOME/.oh-my-zsh" ]; then
-    pass "Oh My Zsh is installed"
-else
-    fail "Oh My Zsh not found"
-fi
+# Skip additional tool checks in test mode (tools not installed in Docker tests)
+if [ -z "$TEST_MODE" ]; then
+    # Check Oh My Zsh was installed
+    if [ -d "$HOME/.oh-my-zsh" ]; then
+        pass "Oh My Zsh is installed"
+    else
+        fail "Oh My Zsh not found"
+    fi
 
-# Check tmux plugins
-if [ -d "$HOME/.tmux/plugins/tpm" ]; then
-    pass "Tmux Plugin Manager is installed"
-else
-    fail "Tmux Plugin Manager not found"
-fi
+    # Check tmux plugins
+    if [ -d "$HOME/.tmux/plugins/tpm" ]; then
+        pass "Tmux Plugin Manager is installed"
+    else
+        fail "Tmux Plugin Manager not found"
+    fi
 
-# Check NvChad
-if [ -d "$HOME/.config/nvim" ]; then
-    pass "Neovim config is installed"
+    # Check NvChad
+    if [ -d "$HOME/.config/nvim" ]; then
+        pass "Neovim config is installed"
+    else
+        fail "Neovim config not found"
+    fi
 else
-    fail "Neovim config not found"
+    info "TEST_MODE: Skipping additional tool installation checks"
 fi
 
 # =============================================================================

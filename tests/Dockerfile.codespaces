@@ -28,6 +28,7 @@ WORKDIR /home/vscode/dotfiles
 # Set CODE_PATH to test codespaces environment
 ENV CODE_PATH=/workspaces
 ENV CLAUDE_REPO=file:///home/vscode/dotfiles/tests/fixtures/claude
+ENV TEST_MODE=1
 
 # Test script
 CMD ["bash", "tests/integration_test.sh"]

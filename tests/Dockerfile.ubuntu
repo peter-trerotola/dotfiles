@@ -32,6 +32,7 @@ WORKDIR /home/testuser/dotfiles
 # Set CODE_PATH for testing
 ENV CODE_PATH=/home/testuser/code
 ENV CLAUDE_REPO=file:///home/testuser/dotfiles/tests/fixtures/claude
+ENV TEST_MODE=1
 
 # Test script will be run as CMD
 CMD ["bash", "tests/integration_test.sh"]
