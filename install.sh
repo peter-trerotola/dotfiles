@@ -76,11 +76,11 @@ install_packages() {
       brew install bazel kubectl docker docker-compose golang gh sst/tap/opencode
       ;;
     ubuntu)
-      # Core packages
-      sudo apt-get install -y rsync tmux btop ripgrep zsh neovim lua-language-server git curl
-      # Additional packages
-      sudo apt-get install -y kubectl docker.io docker-compose golang-go
-      # Note: Bazel and other tools may need manual installation on Ubuntu
+      # Core packages only (many dev tools not in default Ubuntu repos)
+      # For full tooling, use Codespaces or install Homebrew
+      sudo apt-get install -y rsync tmux btop ripgrep zsh neovim git curl
+      # Optional: docker.io golang-go (if available in your Ubuntu version)
+      # Note: kubectl, bazel, gh, and other tools require additional repos
       ;;
   esac
 }
