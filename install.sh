@@ -76,13 +76,119 @@ install_packages() {
       brew install bazel kubectl docker docker-compose golang gh sst/tap/opencode
       ;;
     ubuntu)
-      # Core packages
-      sudo apt-get install -y rsync tmux btop ripgrep zsh neovim lua-language-server git curl
-      # Additional packages
-      sudo apt-get install -y kubectl docker.io docker-compose golang-go
-      # Note: Bazel and other tools may need manual installation on Ubuntu
+      # Core packages only (many dev tools not in default Ubuntu repos)
+      # For full tooling, use Codespaces or install Homebrew
+      sudo apt-get install -y rsync tmux btop ripgrep zsh neovim git curl
+      # Optional: docker.io golang-go (if available in your Ubuntu version)
+      # Note: kubectl, bazel, gh, and other tools require additional repos
       ;;
   esac
+}
+
+# -----------------------------------------------------------------------------
+# Go Installation (Ubuntu)
+# -----------------------------------------------------------------------------
+install_go_ubuntu() {
+  if command -v go &> /dev/null; then
+    echo "Go already installed: $(go version)"
+    return
+  fi
+
+  echo "Installing Go from golang.org..."
+
+  GO_VERSION="1.23.4"
+  GO_ARCHIVE="go${GO_VERSION}.linux-amd64.tar.gz"
+  GO_URL="https://go.dev/dl/${GO_ARCHIVE}"
+
+  cd /tmp
+  curl -LO "$GO_URL"
+  sudo rm -rf /usr/local/go
+  sudo tar -C /usr/local -xzf "$GO_ARCHIVE"
+  rm "$GO_ARCHIVE"
+
+  export PATH=$PATH:/usr/local/go/bin
+  echo "Go installed: $(go version)"
+}
+
+# -----------------------------------------------------------------------------
+# Kubectl Installation (Ubuntu)
+# -----------------------------------------------------------------------------
+install_kubectl_ubuntu() {
+  if command -v kubectl &> /dev/null; then
+    echo "kubectl already installed: $(kubectl version --client --short 2>/dev/null || echo 'installed')"
+    return
+  fi
+
+  echo "Installing kubectl..."
+
+  cd /tmp
+  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+  rm kubectl
+
+  echo "kubectl installed"
+}
+
+# -----------------------------------------------------------------------------
+# Docker Installation (Ubuntu)
+# -----------------------------------------------------------------------------
+install_docker_ubuntu() {
+  if command -v docker &> /dev/null; then
+    echo "Docker already installed: $(docker --version)"
+    return
+  fi
+
+  echo "Installing Docker..."
+
+  # Install from Ubuntu repos
+  sudo apt-get install -y docker.io
+
+  # Add user to docker group
+  sudo usermod -aG docker $USER || true
+
+  echo "Docker installed"
+}
+
+# -----------------------------------------------------------------------------
+# Docker Compose Installation (Ubuntu)
+# -----------------------------------------------------------------------------
+install_docker_compose_ubuntu() {
+  if command -v docker-compose &> /dev/null; then
+    echo "docker-compose already installed: $(docker-compose --version)"
+    return
+  fi
+
+  echo "Installing docker-compose..."
+
+  COMPOSE_VERSION="2.32.4"
+  cd /tmp
+  curl -L "https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64" -o docker-compose
+  sudo install -o root -g root -m 0755 docker-compose /usr/local/bin/docker-compose
+  rm docker-compose
+
+  echo "docker-compose installed"
+}
+
+# -----------------------------------------------------------------------------
+# Lua Language Server Installation (Ubuntu)
+# -----------------------------------------------------------------------------
+install_lua_language_server_ubuntu() {
+  if command -v lua-language-server &> /dev/null; then
+    echo "lua-language-server already installed"
+    return
+  fi
+
+  echo "Installing lua-language-server..."
+
+  LUA_LS_VERSION="3.13.5"
+  cd /tmp
+  curl -L "https://github.com/LuaLS/lua-language-server/releases/download/${LUA_LS_VERSION}/lua-language-server-${LUA_LS_VERSION}-linux-x64.tar.gz" -o lua-ls.tar.gz
+  sudo mkdir -p /usr/local/lua-language-server
+  sudo tar -C /usr/local/lua-language-server -xzf lua-ls.tar.gz
+  sudo ln -sf /usr/local/lua-language-server/bin/lua-language-server /usr/local/bin/lua-language-server
+  rm lua-ls.tar.gz
+
+  echo "lua-language-server installed"
 }
 
 # -----------------------------------------------------------------------------
@@ -90,6 +196,15 @@ install_packages() {
 # -----------------------------------------------------------------------------
 setup_additional_tools() {
   echo "Setting up additional tools..."
+
+  # Install dev tools on Ubuntu (not in default repos)
+  if [ "$OS_TYPE" = "ubuntu" ]; then
+    install_go_ubuntu
+    install_kubectl_ubuntu
+    install_docker_ubuntu
+    install_docker_compose_ubuntu
+    install_lua_language_server_ubuntu
+  fi
 
   # Tmux Plugin Manager
   if [ ! -d ~/.tmux/plugins/tpm ]; then

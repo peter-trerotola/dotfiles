@@ -125,6 +125,13 @@ check_command "zsh"
 check_command "tmux"
 check_command "nvim"
 
+# Check dev tools installation (should be available in all environments)
+check_command "go"
+check_command "kubectl"
+check_command "docker"
+check_command "docker-compose"
+check_command "lua-language-server"
+
 # Check config files were copied
 check_file() {
     local file=$1

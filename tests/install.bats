@@ -75,6 +75,28 @@ EOF
 }
 
 # =============================================================================
+# Go Installation Tests (Ubuntu)
+# =============================================================================
+
+@test "install_go_ubuntu skips if go already installed" {
+  # Mock go command
+  function go() { echo "go version go1.23.4 linux/amd64"; }
+  export -f go
+
+  run install_go_ubuntu
+  [ "$status" -eq 0 ]
+  [[ "$output" =~ "Go already installed" ]]
+
+  unset -f go
+}
+
+@test "install_go_ubuntu uses correct version and URL" {
+  # Skip this test in CI - it requires actual downloads/sudo
+  # The integration test will verify this works end-to-end
+  skip "Tested in integration tests"
+}
+
+# =============================================================================
 # Template Processing Tests
 # =============================================================================
 
