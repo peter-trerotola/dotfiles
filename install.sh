@@ -248,7 +248,8 @@ clone_or_update_claude_repo() {
     echo "Cloning Claude config repository..."
 
     # In Codespaces, use gh CLI for authenticated cloning (supports private repos)
-    if [ "$CODESPACES" = "true" ] && command -v gh &> /dev/null; then
+    # But only for GitHub URLs (not file:// or other protocols)
+    if [ "$CODESPACES" = "true" ] && command -v gh &> /dev/null && [[ ! "$CLAUDE_REPO" =~ ^file:// ]]; then
       # Extract repo from various URL formats
       local repo_path="$CLAUDE_REPO"
       # Convert git@github.com:user/repo.git to user/repo
@@ -265,7 +266,7 @@ clone_or_update_claude_repo() {
         return 1
       fi
     else
-      # Non-Codespaces: use regular git clone
+      # Non-Codespaces or file:// URL: use regular git clone
       if ! git clone "$CLAUDE_REPO" "$CLAUDE_CLONE_DIR"; then
         echo "ERROR: Failed to clone Claude config repository"
         echo "Repository URL: $CLAUDE_REPO"
