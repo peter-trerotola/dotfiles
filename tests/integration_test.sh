@@ -131,6 +131,7 @@ check_command "kubectl"
 check_command "docker"
 check_command "docker-compose"
 check_command "lua-language-server"
+check_command "claude"
 
 # Check config files were copied
 check_file() {
