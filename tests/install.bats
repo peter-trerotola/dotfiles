@@ -323,6 +323,30 @@ EOF
   [ "$status" -eq 0 ]
 }
 
+@test "clone_or_update_claude_repo uses gh CLI in Codespaces" {
+  export CODESPACES=true
+  export CLAUDE_CLONE_DIR="$TEST_HOME/claude-configs"
+  export CLAUDE_REPO="git@github.com:user/claude.git"
+
+  # Mock gh command
+  function gh() {
+    if [ "$1" = "repo" ] && [ "$2" = "clone" ]; then
+      mkdir -p "$4/.git"
+      echo "Mocked: gh repo clone $3 $4"
+      return 0
+    fi
+  }
+  export -f gh
+
+  run clone_or_update_claude_repo
+  [ "$status" -eq 0 ]
+  [[ "$output" =~ "Using gh CLI for authenticated clone" ]]
+  [ -d "$CLAUDE_CLONE_DIR/.git" ]
+
+  unset -f gh
+  unset CODESPACES
+}
+
 # =============================================================================
 # Integration-style Tests (Multiple Functions)
 # =============================================================================
