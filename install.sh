@@ -246,7 +246,35 @@ clone_or_update_claude_repo() {
     git -C "$CLAUDE_CLONE_DIR" pull
   else
     echo "Cloning Claude config repository..."
-    git clone "$CLAUDE_REPO" "$CLAUDE_CLONE_DIR"
+
+    # In Codespaces, use gh CLI for authenticated cloning (supports private repos)
+    if [ "$CODESPACES" = "true" ] && command -v gh &> /dev/null; then
+      # Extract repo from various URL formats
+      local repo_path="$CLAUDE_REPO"
+      # Convert git@github.com:user/repo.git to user/repo
+      repo_path="${repo_path#git@github.com:}"
+      # Convert https://github.com/user/repo.git to user/repo
+      repo_path="${repo_path#https://github.com/}"
+      # Remove .git suffix
+      repo_path="${repo_path%.git}"
+
+      echo "Using gh CLI for authenticated clone in Codespaces..."
+      if ! gh repo clone "$repo_path" "$CLAUDE_CLONE_DIR"; then
+        echo "ERROR: Failed to clone Claude config repository with gh CLI"
+        echo "Repository: $repo_path"
+        return 1
+      fi
+    else
+      # Non-Codespaces: use regular git clone
+      if ! git clone "$CLAUDE_REPO" "$CLAUDE_CLONE_DIR"; then
+        echo "ERROR: Failed to clone Claude config repository"
+        echo "Repository URL: $CLAUDE_REPO"
+        if [[ "$CLAUDE_REPO" =~ ^git@ ]]; then
+          echo "Tip: SSH URLs require SSH keys. Use HTTPS URLs or configure SSH keys."
+        fi
+        return 1
+      fi
+    fi
   fi
 }
 
