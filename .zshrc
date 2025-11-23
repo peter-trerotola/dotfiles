@@ -31,7 +31,7 @@ alias vim="nvim"
 
 # Exports
 export GOPATH=~/go
-export PATH=~/.opencode/bin:/usr/local/go/bin:$GOPATH/bin:$PATH
+export PATH=~/.opencode/bin:$PATH
 export TERM=xterm-256color
 
 # powerline go
