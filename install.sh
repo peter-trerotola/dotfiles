@@ -74,6 +74,8 @@ install_packages() {
       brew install rsync tmux btop ripgrep zsh neovim lua-language-server
       # Additional packages (previously work-specific, now always installed)
       brew install bazel kubectl docker docker-compose golang gh sst/tap/opencode
+      # Claude Code CLI
+      brew install --cask claude-code
       ;;
     ubuntu)
       # Core packages only (many dev tools not in default Ubuntu repos)
