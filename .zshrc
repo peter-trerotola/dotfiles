@@ -32,11 +32,12 @@ alias vim="nvim"
 # Exports
 export GOPATH=~/go
 export PATH=~/.opencode/bin:/usr/local/go/bin:$GOPATH/bin:$PATH
+export PATH="$HOME/bin:$PATH"
 export TERM=xterm-256color
 
 # powerline go
 function powerline_precmd() {
-    PS1="$($GOPATH/bin/powerline-go -error $? -jobs ${${(%):%j}:-0})"
+    PS1="$($HOME/bin/powerline-go -error $? -jobs ${${(%):%j}:-0})"
 
     # Uncomment the following line to automatically clear errors after showing
     # them once. This not only clears the error for powerline-go, but also for
@@ -53,6 +54,6 @@ function install_powerline_precmd() {
   done
   precmd_functions+=(powerline_precmd)
 }
-if [ "$TERM" != "linux" ] && [ -f "$GOPATH/bin/powerline-go" ]; then
+if [ "$TERM" != "linux" ] && [ -f "$HOME/bin/powerline-go" ]; then
     install_powerline_precmd
 fi
