@@ -259,7 +259,15 @@ setup_additional_tools() {
 
   # Powerline-go (requires Go)
   if command -v go &> /dev/null; then
-    go install github.com/justjanne/powerline-go@latest
+    echo "Installing powerline-go..."
+    if ! go install github.com/justjanne/powerline-go@latest 2>&1 | tee /tmp/powerline-go-install.log; then
+      echo "WARNING: Failed to install powerline-go (non-fatal)"
+      echo "This is likely due to Go toolchain issues in the environment"
+      echo "The dotfiles will work without powerline-go, but the prompt won't be enhanced"
+      echo "See /tmp/powerline-go-install.log for details"
+    else
+      echo "powerline-go installed successfully"
+    fi
   fi
 
   # Tailscale (optional, only if not already installed)
