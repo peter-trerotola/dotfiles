@@ -257,17 +257,55 @@ setup_additional_tools() {
     git clone https://github.com/NvChad/starter ~/.config/nvim
   fi
 
-  # Powerline-go (requires Go)
-  if command -v go &> /dev/null; then
+  # Powerline-go (requires Go or downloads pre-built binary)
+  if ! command -v powerline-go &> /dev/null; then
     echo "Installing powerline-go..."
-    if ! go install github.com/justjanne/powerline-go@latest 2>&1 | tee /tmp/powerline-go-install.log; then
-      echo "WARNING: Failed to install powerline-go (non-fatal)"
-      echo "This is likely due to Go toolchain issues in the environment"
-      echo "The dotfiles will work without powerline-go, but the prompt won't be enhanced"
-      echo "See /tmp/powerline-go-install.log for details"
+
+    # Try compiling from source with Go first
+    if command -v go &> /dev/null; then
+      if go install github.com/justjanne/powerline-go@latest 2>&1 | tee /tmp/powerline-go-install.log | grep -q "powerline-go"; then
+        if command -v powerline-go &> /dev/null; then
+          echo "powerline-go installed successfully from source"
+        else
+          echo "Go install appeared to succeed but powerline-go not found, trying pre-built binary..."
+          COMPILE_FAILED=true
+        fi
+      else
+        echo "Go compilation failed, trying pre-built binary..."
+        COMPILE_FAILED=true
+      fi
     else
-      echo "powerline-go installed successfully"
+      echo "Go not available, trying pre-built binary..."
+      COMPILE_FAILED=true
     fi
+
+    # Fallback: Download pre-built binary
+    if [ "$COMPILE_FAILED" = "true" ] || ! command -v powerline-go &> /dev/null; then
+      echo "Downloading pre-built powerline-go binary..."
+      POWERLINE_VERSION="v1.24"
+      POWERLINE_URL="https://github.com/justjanne/powerline-go/releases/download/${POWERLINE_VERSION}/powerline-go-linux-amd64"
+
+      mkdir -p ~/bin
+      if curl -fL "$POWERLINE_URL" -o ~/bin/powerline-go; then
+        chmod +x ~/bin/powerline-go
+
+        # Add ~/bin to PATH in shell configs if not already there
+        if ! grep -q 'export PATH="$HOME/bin:$PATH"' ~/.zshrc; then
+          echo 'export PATH="$HOME/bin:$PATH"' >> ~/.zshrc
+        fi
+        if ! grep -q 'export PATH="$HOME/bin:$PATH"' ~/.bashrc; then
+          echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+        fi
+
+        export PATH="$HOME/bin:$PATH"
+        echo "powerline-go installed successfully from pre-built binary"
+      else
+        echo "WARNING: Failed to download powerline-go (non-fatal)"
+        echo "The dotfiles will work without powerline-go, but the prompt won't be enhanced"
+      fi
+    fi
+  else
+    echo "powerline-go already installed"
   fi
 
   # Tailscale (optional, only if not already installed)
@@ -479,6 +517,13 @@ sync_claude() {
   done
 
   echo ""
+
+  # Override with CLAUDE_CONFIG if set (legacy support)
+  if [ ! -z "${CLAUDE_CONFIG}" ]; then
+    echo "Overriding ~/.claude/settings.json with CLAUDE_CONFIG env var (legacy mode)"
+    echo "$CLAUDE_CONFIG" > ~/.claude/settings.json
+  fi
+
   echo "Claude Code configuration complete!"
 }
 
@@ -514,13 +559,6 @@ setup_shell() {
 # Legacy Environment Variable Support
 # -----------------------------------------------------------------------------
 setup_legacy_env_vars() {
-  # Legacy CLAUDE_CONFIG support (backward compatibility)
-  if [ ! -z "${CLAUDE_CONFIG}" ]; then
-    echo "Setting up legacy Claude config from CLAUDE_CONFIG env var"
-    mkdir -p ~/.claude
-    echo "$CLAUDE_CONFIG" > ~/.claude/settings.json
-  fi
-
   # Snowflake configuration
   if [ ! -z "${SNOWFLAKE_PRIVATE_KEY}" ] && [ ! -z "${SNOWFLAKE_CLI_CONFIG}" ]; then
     echo "Setting up Snowflake config & private key"
