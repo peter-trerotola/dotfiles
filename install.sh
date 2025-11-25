@@ -70,12 +70,51 @@ install_packages() {
 
   case $OS_TYPE in
     macos|linux)
-      # Core packages
-      brew install rsync tmux btop ripgrep zsh neovim lua-language-server
-      # Additional packages (previously work-specific, now always installed)
-      brew install bazel kubectl docker docker-compose golang gh sst/tap/opencode
-      # Claude Code CLI
-      brew install --cask claude-code
+      # Package list: "brew_package:command_name" (command_name optional if same as package)
+      local brew_packages=(
+        "rsync"
+        "tmux"
+        "btop"
+        "ripgrep:rg"
+        "zsh"
+        "neovim:nvim"
+        "lua-language-server"
+        "bazel"
+        "kubectl"
+        "docker"
+        "docker-compose"
+        "golang:go"
+        "gh"
+        "sst/tap/opencode:opencode"
+      )
+
+      local packages_to_install=""
+      for entry in "${brew_packages[@]}"; do
+        local pkg="${entry%%:*}"
+        local cmd="${entry##*:}"
+        # If no command specified, use package name
+        [ "$pkg" = "$cmd" ] && cmd="$pkg"
+
+        if command -v "$cmd" &> /dev/null; then
+          echo "$pkg already installed"
+        else
+          packages_to_install+=" $pkg"
+        fi
+      done
+
+      if [ -n "$packages_to_install" ]; then
+        echo "Installing:$packages_to_install"
+        brew install $packages_to_install
+      else
+        echo "All brew packages already installed"
+      fi
+
+      # Claude Code CLI (cask)
+      if ! brew list --cask claude-code &> /dev/null; then
+        brew install --cask claude-code
+      else
+        echo "claude-code already installed"
+      fi
       ;;
     ubuntu)
       # Core packages only (many dev tools not in default Ubuntu repos)
