@@ -572,7 +572,21 @@ setup_legacy_env_vars() {
   if [ ! -z "${JFROG_AUTH}" ] && [ ! -z "${JFROG_URL}" ]; then
     echo "Setting up JFrog npm configuration..."
     curl -u $JFROG_AUTH "$JFROG_URL" > ~/.npmrc
-    echo "JFrog npm configuration complete"
+
+    # Create .netrc from .npmrc values
+    echo "Setting up .netrc from .npmrc..."
+    local jfrog_host=$(grep -oP '//\K[^/]+' ~/.npmrc | head -1)
+    local jfrog_user=$(grep ':username=' ~/.npmrc | head -1 | sed 's/.*:username=//')
+    local jfrog_pass=$(grep ':_password=' ~/.npmrc | head -1 | sed 's/.*:_password=//')
+
+    cat > ~/.netrc <<EOF
+machine $jfrog_host
+    login $jfrog_user
+    password $jfrog_pass
+EOF
+    chmod 600 ~/.netrc
+
+    echo "JFrog npm and netrc configuration complete"
   fi
 }
 
