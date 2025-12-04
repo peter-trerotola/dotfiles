@@ -567,6 +567,13 @@ setup_legacy_env_vars() {
     chmod 600 ~/.keys/snowflake_private_key.pem
     echo "$SNOWFLAKE_CLI_CONFIG" > ~/.snowflake/config.toml
   fi
+
+  # JFrog npm configuration
+  if [ ! -z "${JFROG_AUTH}" ] && [ ! -z "${JFROG_URL}" ]; then
+    echo "Setting up JFrog npm configuration..."
+    curl -u $JFROG_AUTH "$JFROG_URL" > ~/.npmrc
+    echo "JFrog npm configuration complete"
+  fi
 }
 
 # -----------------------------------------------------------------------------
