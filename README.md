@@ -16,18 +16,21 @@ This repository contains the configurations for my dev environment and is used o
 
 ### Basic Installation
 ```bash
-# Clone and run the installer
+# Clone and run the installer (Claude sync is optional)
+./install.sh
+
+# With Claude Code configuration syncing
 CODE_PATH=~/Code CLAUDE_REPO="git@github.com:user/claude-configs.git" ./install.sh
 ```
 
 ### GitHub Codespaces
-Attach this dotfiles repo to your codespace configuration and set these secrets:
-- `CODE_PATH` - Set to `/workspaces`
-- `CLAUDE_REPO` - Your private Claude configuration repository URL
+Attach this dotfiles repo to your codespace configuration. Claude configuration syncing is optional - set these secrets only if you want Claude Code configurations:
+- `CODE_PATH` - Set to `/workspaces` (required if using Claude sync)
+- `CLAUDE_REPO` - Your private Claude configuration repository URL (optional)
 
 ### Environment Variables
-- `CODE_PATH` - Directory where your code repos live (e.g., `~/Code`, `~/Work`, `/workspaces`)
-- `CLAUDE_REPO` - URL to your private Claude configuration repository
+- `CODE_PATH` - Directory where your code repos live (e.g., `~/Code`, `~/Work`, `/workspaces`). Required only if using Claude sync.
+- `CLAUDE_REPO` - URL to your private Claude configuration repository (optional). If not set, Claude sync is skipped.
 - See `CLAUDE.md` for more details
 
 ## Testing

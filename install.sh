@@ -104,7 +104,16 @@ install_packages() {
 
       if [ -n "$packages_to_install" ]; then
         echo "Installing:$packages_to_install"
-        brew install $packages_to_install
+        # Install packages one at a time to avoid "broken pipe" errors
+        # and to make failures easier to debug
+        for pkg in $packages_to_install; do
+          echo "Installing $pkg..."
+          if brew install "$pkg"; then
+            echo "$pkg installed successfully"
+          else
+            echo "Warning: Failed to install $pkg"
+          fi
+        done
       else
         echo "All brew packages already installed"
       fi
@@ -468,17 +477,16 @@ sync_repo_claude_config() {
 
 # Main sync function - syncs all repos under CODE_PATH
 sync_claude() {
-  # Validate CODE_PATH is set
+  # Skip if CLAUDE_REPO is not set (Claude sync is optional)
+  if [ -z "$CLAUDE_REPO" ]; then
+    echo "Skipping Claude sync (CLAUDE_REPO not set)"
+    return 0
+  fi
+
+  # Validate CODE_PATH is set when CLAUDE_REPO is provided
   if [ -z "$CODE_PATH" ]; then
     echo "ERROR: CODE_PATH environment variable is not set"
     echo "Set CODE_PATH to your workspace directory (e.g., ~/Code, ~/Work, /workspaces)"
-    return 1
-  fi
-
-  # Validate CLAUDE_REPO is set
-  if [ -z "$CLAUDE_REPO" ]; then
-    echo "ERROR: CLAUDE_REPO environment variable is not set"
-    echo "Set CLAUDE_REPO to your Claude configuration repository URL"
     return 1
   fi
 
@@ -600,25 +608,13 @@ main() {
   echo "CLAUDE_REPO: ${CLAUDE_REPO:-not set}"
   echo "============================================="
 
-  # Validate CODE_PATH is set
-  if [ -z "$CODE_PATH" ]; then
-    echo ""
-    echo "ERROR: CODE_PATH environment variable must be set"
-    echo "Set CODE_PATH to your workspace directory:"
-    echo "  - Personal laptop: export CODE_PATH=~/Code"
-    echo "  - Work laptop: export CODE_PATH=~/Work"
-    echo "  - Codespaces: export CODE_PATH=/workspaces"
-    echo ""
-    exit 1
-  fi
-
   install_package_manager
   install_packages
   setup_additional_tools
   install_config_files
   setup_shell
 
-  # Sync Claude configurations to all repos under CODE_PATH
+  # Sync Claude configurations (optional - only if CLAUDE_REPO is set)
   sync_claude
 
   # Legacy environment variable support
@@ -628,7 +624,9 @@ main() {
   echo "============================================="
   echo "Installation complete!"
   echo "Please restart your shell or run: source ~/.zshrc"
-  echo "To sync Claude configs later, run: sync-claude"
+  if [ ! -z "$CLAUDE_REPO" ]; then
+    echo "To sync Claude configs later, run: sync-claude"
+  fi
   echo "============================================="
 }
 

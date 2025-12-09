@@ -10,6 +10,10 @@ This is a dotfiles repository for personal development environment configuration
 
 ### Basic Installation
 ```bash
+# Basic installation without Claude Code configuration syncing
+./install.sh
+
+# With Claude Code configuration syncing
 # Set CODE_PATH to where your code repos live and run the installer
 CODE_PATH=~/Code CLAUDE_REPO="git@github.com:user/claude-configs.git" ./install.sh
 
@@ -57,6 +61,8 @@ All packages are installed regardless of environment (work and personal packages
 - **Ubuntu Server**: Uses apt package manager (some tools may require manual installation)
 
 ## Claude Code Configuration System
+
+**Note:** Claude Code configuration syncing is optional. If you don't set the `CLAUDE_REPO` environment variable, the installer will skip Claude sync entirely and just set up your basic development environment.
 
 ### Private Configuration Repository
 
@@ -261,11 +267,11 @@ When modifying:
 ## Environment Variables
 
 ### Primary Configuration
-- **CODE_PATH**: **Required**. Directory where your code repositories live
+- **CODE_PATH**: Required only if using Claude sync. Directory where your code repositories live
   - Personal laptop: `~/Code`
   - Work laptop: `~/Work`
   - GitHub Codespaces: `/workspaces`
-- **CLAUDE_REPO**: **Required**. URL to private Claude configuration repository
+- **CLAUDE_REPO**: Optional. URL to private Claude configuration repository. If not set, Claude sync is skipped.
   - Example: `"git@github.com:username/claude-configs.git"`
 
 ### Legacy Support (Backward Compatibility)
