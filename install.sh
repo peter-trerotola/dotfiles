@@ -104,7 +104,16 @@ install_packages() {
 
       if [ -n "$packages_to_install" ]; then
         echo "Installing:$packages_to_install"
-        brew install $packages_to_install
+        # Install packages one at a time to avoid "broken pipe" errors
+        # and to make failures easier to debug
+        for pkg in $packages_to_install; do
+          echo "Installing $pkg..."
+          if brew install "$pkg"; then
+            echo "$pkg installed successfully"
+          else
+            echo "Warning: Failed to install $pkg"
+          fi
+        done
       else
         echo "All brew packages already installed"
       fi
