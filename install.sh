@@ -475,6 +475,15 @@ sync_repo_claude_config() {
   sync_claude_component "output-styles" "$repo_name" "$claude_dir"
 }
 
+# Apply CLAUDE_CONFIG if set (independent of CLAUDE_REPO)
+apply_claude_config() {
+  if [ ! -z "${CLAUDE_CONFIG}" ]; then
+    echo "Applying CLAUDE_CONFIG env var to ~/.claude/settings.json"
+    mkdir -p "$HOME/.claude"
+    echo "$CLAUDE_CONFIG" > ~/.claude/settings.json
+  fi
+}
+
 # Main sync function - syncs all repos under CODE_PATH
 sync_claude() {
   # Skip if CLAUDE_REPO is not set (Claude sync is optional)
@@ -525,13 +534,6 @@ sync_claude() {
   done
 
   echo ""
-
-  # Override with CLAUDE_CONFIG if set (legacy support)
-  if [ ! -z "${CLAUDE_CONFIG}" ]; then
-    echo "Overriding ~/.claude/settings.json with CLAUDE_CONFIG env var (legacy mode)"
-    echo "$CLAUDE_CONFIG" > ~/.claude/settings.json
-  fi
-
   echo "Claude Code configuration complete!"
 }
 
@@ -616,6 +618,9 @@ main() {
 
   # Sync Claude configurations (optional - only if CLAUDE_REPO is set)
   sync_claude
+
+  # Apply CLAUDE_CONFIG if set (independent of CLAUDE_REPO)
+  apply_claude_config
 
   # Legacy environment variable support
   setup_legacy_env_vars

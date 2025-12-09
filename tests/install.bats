@@ -372,3 +372,77 @@ EOF
   [ -f "$repo_path/.claude/settings.json" ]
   [ -f "$repo_path/.claude/CLAUDE.md" ]
 }
+
+# =============================================================================
+# CLAUDE_CONFIG Tests (Independent of CLAUDE_REPO)
+# =============================================================================
+
+@test "apply_claude_config creates settings.json when CLAUDE_CONFIG is set" {
+  export CLAUDE_CONFIG='{"test": "config_value"}'
+
+  run apply_claude_config
+  [ "$status" -eq 0 ]
+  [[ "$output" =~ "Applying CLAUDE_CONFIG" ]]
+
+  # Check that settings.json was created
+  [ -f "$HOME/.claude/settings.json" ]
+
+  # Verify content
+  content=$(cat "$HOME/.claude/settings.json")
+  [ "$content" = '{"test": "config_value"}' ]
+}
+
+@test "apply_claude_config does nothing when CLAUDE_CONFIG is not set" {
+  unset CLAUDE_CONFIG
+
+  run apply_claude_config
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+
+  # Should not create settings.json
+  [ ! -f "$HOME/.claude/settings.json" ]
+}
+
+@test "apply_claude_config works without CLAUDE_REPO" {
+  unset CLAUDE_REPO
+  export CLAUDE_CONFIG='{"standalone": true}'
+
+  run apply_claude_config
+  [ "$status" -eq 0 ]
+
+  # Check that settings.json was created
+  [ -f "$HOME/.claude/settings.json" ]
+
+  # Verify content
+  grep "standalone" "$HOME/.claude/settings.json"
+}
+
+@test "apply_claude_config overrides settings from sync_claude" {
+  export CODE_PATH="$TEST_HOME/code"
+  export CLAUDE_CLONE_DIR="$TEST_HOME/claude-configs"
+  export CLAUDE_REPO="file://$PWD/tests/fixtures/claude"
+  export CLAUDE_CONFIG='{"override": "true"}'
+
+  # Setup fixture
+  setup_claude_fixture
+
+  # Create CODE_PATH directory
+  mkdir -p "$CODE_PATH"
+
+  # Run sync_claude first
+  sync_claude
+
+  # Verify sync_claude created settings.json
+  [ -f "$HOME/.claude/settings.json" ]
+
+  # Get content before override
+  before=$(cat "$HOME/.claude/settings.json")
+
+  # Apply CLAUDE_CONFIG
+  apply_claude_config
+
+  # Verify content was overridden
+  after=$(cat "$HOME/.claude/settings.json")
+  [ "$after" = '{"override": "true"}' ]
+  [ "$before" != "$after" ]
+}
