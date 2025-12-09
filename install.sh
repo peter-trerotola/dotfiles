@@ -477,10 +477,10 @@ sync_repo_claude_config() {
 
 # Apply CLAUDE_CONFIG if set (independent of CLAUDE_REPO)
 apply_claude_config() {
-  if [ ! -z "${CLAUDE_CONFIG}" ]; then
-    echo "Applying CLAUDE_CONFIG env var to ~/.claude/settings.json"
+  if [ -n "${CLAUDE_CONFIG}" ]; then
+    echo "Applying CLAUDE_CONFIG env var to $HOME/.claude/settings.json"
     mkdir -p "$HOME/.claude"
-    echo "$CLAUDE_CONFIG" > ~/.claude/settings.json
+    echo "$CLAUDE_CONFIG" > "$HOME/.claude/settings.json"
   fi
 }
 

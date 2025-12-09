@@ -378,7 +378,7 @@ EOF
 # =============================================================================
 
 @test "apply_claude_config creates settings.json when CLAUDE_CONFIG is set" {
-  export CLAUDE_CONFIG='{"test": "config_value"}'
+  export CLAUDE_CONFIG='{"test_key": "test_value"}'
 
   run apply_claude_config
   [ "$status" -eq 0 ]
@@ -389,7 +389,7 @@ EOF
 
   # Verify content
   content=$(cat "$HOME/.claude/settings.json")
-  [ "$content" = '{"test": "config_value"}' ]
+  [ "$content" = '{"test_key": "test_value"}' ]
 }
 
 @test "apply_claude_config does nothing when CLAUDE_CONFIG is not set" {
