@@ -250,7 +250,7 @@ EOF
 # CODE_PATH Tests
 # =============================================================================
 
-@test "sync_claude requires CODE_PATH to be set" {
+@test "sync_claude requires CODE_PATH to be set when CLAUDE_REPO is set" {
   unset CODE_PATH
   export CLAUDE_REPO="file://$PWD/tests/fixtures/claude"
 
@@ -259,13 +259,13 @@ EOF
   [[ "$output" =~ "CODE_PATH" ]]
 }
 
-@test "sync_claude requires CLAUDE_REPO to be set" {
+@test "sync_claude skips when CLAUDE_REPO not set" {
   export CODE_PATH="$TEST_HOME/code"
   unset CLAUDE_REPO
 
   run sync_claude
-  [ "$status" -eq 1 ]
-  [[ "$output" =~ "CLAUDE_REPO" ]]
+  [ "$status" -eq 0 ]
+  [[ "$output" =~ "Skipping Claude sync" ]]
 }
 
 @test "sync_claude syncs all repos under CODE_PATH" {
