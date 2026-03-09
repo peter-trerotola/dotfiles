@@ -27,3 +27,7 @@ export TMUX_POWERLINE_SEG_RAINBARF_ARGS="--width 14 --no-battery"
 
 # Segment: time
 export TMUX_POWERLINE_SEG_TIME_FORMAT="%I:%M %p"
+
+# Segment: weather
+export TMUX_POWERLINE_SEG_WEATHER_UNIT="f"
+export TMUX_POWERLINE_SEG_WEATHER_UPDATE_PERIOD="600"
