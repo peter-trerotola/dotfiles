@@ -67,7 +67,7 @@ __get_net() {
 
 	local elapsed=$(( now_time - prev_time ))
 	if (( elapsed <= 0 || prev_time == 0 )); then
-		echo "0"
+		printf "%4sB/s" "0"
 		return
 	fi
 
@@ -75,13 +75,13 @@ __get_net() {
 	local delta_out=$(( now_out - prev_out ))
 	local total_bytes=$(( (delta_in + delta_out) / elapsed ))
 
-	# Convert to human-readable
+	# Convert to human-readable, right-padded to 5 chars (e.g. "482K/s" or "  2M/s")
 	if (( total_bytes >= 1048576 )); then
-		echo "$(( total_bytes / 1048576 ))M/s"
+		printf "%4sM/s" "$(( total_bytes / 1048576 ))"
 	elif (( total_bytes >= 1024 )); then
-		echo "$(( total_bytes / 1024 ))K/s"
+		printf "%4sK/s" "$(( total_bytes / 1024 ))"
 	else
-		echo "${total_bytes}B/s"
+		printf "%4sB/s" "${total_bytes}"
 	fi
 }
 
@@ -120,7 +120,7 @@ __colored_pct() {
 	local pct=$1
 	local color
 	color=$(__color_for_pct "$pct")
-	echo "#[fg=${color},bg=${BG_COLOR}]${pct}%"
+	printf "#[fg=${color},bg=${BG_COLOR}]%3s%%" "$pct"
 }
 
 run_segment() {
