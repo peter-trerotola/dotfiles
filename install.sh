@@ -86,6 +86,7 @@ install_packages() {
         "golang:go"
         "gh"
         "sst/tap/opencode:opencode"
+        "rainbarf"
       )
 
       local packages_to_install=""
