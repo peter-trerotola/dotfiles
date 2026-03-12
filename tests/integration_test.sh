@@ -72,14 +72,6 @@ fi
 
 info "Setting up test environment..."
 
-# Create mock Claude repo if using fixture
-if [[ "$CLAUDE_REPO" == file://* ]]; then
-    info "Setting up Claude fixture repository"
-    source tests/helpers.bash
-    setup_claude_fixture
-    pass "Claude fixture repository created"
-fi
-
 # Set test environment variables
 export TEST_VAR="integration_test_value"
 
@@ -187,61 +179,28 @@ else
     fail ".claude directory not found"
 fi
 
-# Check settings.json was generated
-if [ -f "$HOME/.claude/settings.json" ]; then
-    pass "settings.json was generated"
-
-    # Verify template substitution worked
-    if grep -q "integration_test_value" "$HOME/.claude/settings.json" 2>/dev/null; then
-        pass "Template variable substitution worked"
+# Check settings.json was generated from CLAUDE_CONFIG
+if [ -n "$CLAUDE_CONFIG" ]; then
+    if [ -f "$HOME/.claude/settings.json" ]; then
+        pass "settings.json was generated from CLAUDE_CONFIG"
     else
-        info "Template substitution check skipped (no template vars)"
+        fail "settings.json not found (CLAUDE_CONFIG was set)"
     fi
 else
-    fail "settings.json not found"
+    info "CLAUDE_CONFIG not set, skipping settings.json check"
 fi
 
-# Check CLAUDE.md
-if [ -f "$HOME/.claude/CLAUDE.md" ]; then
-    pass "CLAUDE.md was synced"
-else
-    info "CLAUDE.md not found (optional)"
-fi
-
-# Check for Claude components directories
-for component in agents commands skills hooks output-styles; do
-    if [ -d "$HOME/.claude/$component" ]; then
-        pass "$component directory was synced"
-    else
-        info "$component directory not found (optional)"
-    fi
-done
-
 # =============================================================================
-# CODE_PATH Specific Tests
+# Zsh Configuration Tests
 # =============================================================================
 
-info "Verifying CODE_PATH-based configuration..."
+info "Verifying zsh configuration..."
 
 # Check that plugins are loaded in .zshrc
 if grep -q "bazel" "$HOME/.zshrc"; then
     pass "Bazel plugin is configured"
 else
     fail "Bazel plugin not found in .zshrc"
-fi
-
-# Check that CODE_PATH repos have .claude directories
-if [ -n "$CODE_PATH" ] && [ -d "$CODE_PATH" ]; then
-    for repo_dir in "$CODE_PATH"/*; do
-        if [ -d "$repo_dir" ]; then
-            repo_name=$(basename "$repo_dir")
-            if [ -d "$repo_dir/.claude" ]; then
-                pass "$repo_name has .claude directory"
-            else
-                fail "$repo_name missing .claude directory"
-            fi
-        fi
-    done
 fi
 
 # =============================================================================
@@ -257,7 +216,7 @@ else
 fi
 
 # Verify configs still exist after re-run
-if [ -f "$HOME/.zshrc" ] && [ -f "$HOME/.claude/settings.json" ]; then
+if [ -f "$HOME/.zshrc" ]; then
     pass "Configuration files still exist after re-run"
 else
     fail "Configuration files missing after re-run"

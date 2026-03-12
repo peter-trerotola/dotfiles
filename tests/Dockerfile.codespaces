@@ -13,9 +13,6 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Create /workspaces directory as root and set permissions
-RUN mkdir -p /workspaces/test-repo && chown -R vscode:vscode /workspaces
-
 # Switch to vscode user (default in Codespaces)
 USER vscode
 WORKDIR /home/vscode
@@ -25,9 +22,8 @@ COPY --chown=vscode:vscode . /home/vscode/dotfiles/
 
 WORKDIR /home/vscode/dotfiles
 
-# Set CODE_PATH to test codespaces environment
-ENV CODE_PATH=/workspaces
-ENV CLAUDE_REPO=file:///home/vscode/dotfiles/tests/fixtures/claude
+# Set test environment
+ENV CLAUDE_CONFIG='{"test": "codespaces"}'
 ENV TEST_MODE=1
 ENV CODESPACES=true
 
