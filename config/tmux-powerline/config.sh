@@ -25,6 +25,9 @@ export TMUX_POWERLINE_SEG_BATTERY_TYPE="percentage"
 # Segment: rainbarf (CPU/RAM sparkline chart)
 export TMUX_POWERLINE_SEG_RAINBARF_ARGS="--width 14 --no-battery"
 
+# Segment: date
+export TMUX_POWERLINE_SEG_DATE_FORMAT="%m/%d"
+
 # Segment: time
 export TMUX_POWERLINE_SEG_TIME_FORMAT="%I:%M %p"
 
