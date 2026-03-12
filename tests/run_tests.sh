@@ -144,10 +144,6 @@ if $RUN_INTEGRATION; then
         echo -e "${BLUE}Running Codespaces Integration Test...${NC}"
         echo ""
 
-        # Setup fixtures first
-        source tests/helpers.bash
-        setup_claude_fixture
-
         docker build -f tests/Dockerfile.codespaces -t dotfiles-test-codespaces .
 
         if docker run --rm dotfiles-test-codespaces; then
@@ -155,11 +151,8 @@ if $RUN_INTEGRATION; then
             echo ""
         else
             echo -e "${RED}✗ Codespaces integration test failed${NC}"
-            cleanup_claude_fixture
             exit 1
         fi
-
-        cleanup_claude_fixture
     fi
 fi
 
