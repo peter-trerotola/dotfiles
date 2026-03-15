@@ -43,9 +43,7 @@ TMUX_POWERLINE_DEFAULT_RIGHTSIDE_SEPARATOR=${TMUX_POWERLINE_DEFAULT_RIGHTSIDE_SE
 if [ -z "$TMUX_POWERLINE_WINDOW_STATUS_CURRENT" ]; then
 	TMUX_POWERLINE_WINDOW_STATUS_CURRENT=(
 		"#[fg=$thm_blue,bg=$thm_bg_highlight,bold]"
-		" #I "
-		"$TMUX_POWERLINE_SEPARATOR_THIN"
-		" #W "
+		" #I:#W "
 		"#[$(format regular)]"
 	)
 fi
@@ -63,9 +61,7 @@ fi
 if [ -z "$TMUX_POWERLINE_WINDOW_STATUS_FORMAT" ]; then
 	TMUX_POWERLINE_WINDOW_STATUS_FORMAT=(
 		"#[fg=$thm_dark5,bg=$thm_bg]"
-		"  #I#{?window_flags,#F, } "
-		"$TMUX_POWERLINE_SEPARATOR_THIN"
-		" #W "
+		" #I:#W "
 	)
 fi
 
@@ -89,7 +85,7 @@ if [ -z "$TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS" ]; then
 		"sparkline $thm_bg $thm_orange"
 		"weather $thm_cyan $thm_bg"
 		"battery $thm_cyan $thm_bg"
-		"date $thm_fg_dark $thm_bg"
-		"time $thm_blue $thm_bg ${TMUX_POWERLINE_SEPARATOR_LEFT_THIN}"
+		"date $thm_fg_dark $thm_bg ${TMUX_POWERLINE_SEPARATOR_LEFT_THIN}"
+		"time $thm_blue $thm_bg ${TMUX_POWERLINE_SEPARATOR_LEFT_THIN} $thm_bg $thm_comment"
 	)
 fi
