@@ -70,19 +70,18 @@ if [ -z "$TMUX_POWERLINE_WINDOW_STATUS_FORMAT" ]; then
 fi
 
 # ──────────────────────────────────────────────────────
-# LEFT: session  │  git branch  │  pwd
+# LEFT: session  │  git branch
 # ──────────────────────────────────────────────────────
 # shellcheck disable=SC1143,SC2128
 if [ -z "$TMUX_POWERLINE_LEFT_STATUS_SEGMENTS" ]; then
 	TMUX_POWERLINE_LEFT_STATUS_SEGMENTS=(
 		"tmux_session_info $thm_blue $thm_bg_dark"
 		"vcs_branch $thm_green $thm_bg"
-		"pwd $thm_purple $thm_bg"
 	)
 fi
 
 # ──────────────────────────────────────────────────────
-# RIGHT: sparkline  │  weather  │  battery  │  day  │  date  │  time
+# RIGHT: sparkline  │  weather  │  battery  │  date  │  time
 # ──────────────────────────────────────────────────────
 # shellcheck disable=SC1143,SC2128
 if [ -z "$TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS" ]; then
@@ -90,8 +89,7 @@ if [ -z "$TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS" ]; then
 		"sparkline $thm_bg $thm_orange"
 		"weather $thm_cyan $thm_bg"
 		"battery $thm_cyan $thm_bg"
-		"date_day $thm_fg_dark $thm_bg"
-		"date $thm_fg_dark $thm_bg ${TMUX_POWERLINE_SEPARATOR_LEFT_THIN}"
+		"date $thm_fg_dark $thm_bg"
 		"time $thm_blue $thm_bg ${TMUX_POWERLINE_SEPARATOR_LEFT_THIN}"
 	)
 fi
