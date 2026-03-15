@@ -70,7 +70,7 @@ if [ -z "$TMUX_POWERLINE_WINDOW_STATUS_FORMAT" ]; then
 fi
 
 # ──────────────────────────────────────────────────────
-# LEFT: session  │  git branch  │  pwd
+# LEFT: session  │  git branch
 # ──────────────────────────────────────────────────────
 # shellcheck disable=SC1143,SC2128
 if [ -z "$TMUX_POWERLINE_LEFT_STATUS_SEGMENTS" ]; then
