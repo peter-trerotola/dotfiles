@@ -81,7 +81,7 @@ if [ -z "$TMUX_POWERLINE_LEFT_STATUS_SEGMENTS" ]; then
 fi
 
 # ──────────────────────────────────────────────────────
-# RIGHT: sparkline  │  weather  │  battery  │  day  │  date  │  time
+# RIGHT: sparkline  │  weather  │  battery  │  date  │  time
 # ──────────────────────────────────────────────────────
 # shellcheck disable=SC1143,SC2128
 if [ -z "$TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS" ]; then
