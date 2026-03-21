@@ -267,56 +267,6 @@ setup_additional_tools() {
     git clone https://github.com/NvChad/starter ~/.config/nvim
   fi
 
-  # Powerline-go (requires Go or downloads pre-built binary)
-  if ! command -v powerline-go &> /dev/null; then
-    echo "Installing powerline-go..."
-
-    # Try compiling from source with Go first
-    if command -v go &> /dev/null; then
-      if go install github.com/justjanne/powerline-go@latest 2>&1 | tee /tmp/powerline-go-install.log | grep -q "powerline-go"; then
-        if command -v powerline-go &> /dev/null; then
-          echo "powerline-go installed successfully from source"
-        else
-          echo "Go install appeared to succeed but powerline-go not found, trying pre-built binary..."
-          COMPILE_FAILED=true
-        fi
-      else
-        echo "Go compilation failed, trying pre-built binary..."
-        COMPILE_FAILED=true
-      fi
-    else
-      echo "Go not available, trying pre-built binary..."
-      COMPILE_FAILED=true
-    fi
-
-    # Fallback: Download pre-built binary
-    if [ "$COMPILE_FAILED" = "true" ] || ! command -v powerline-go &> /dev/null; then
-      echo "Downloading pre-built powerline-go binary..."
-      POWERLINE_VERSION="v1.24"
-      POWERLINE_URL="https://github.com/justjanne/powerline-go/releases/download/${POWERLINE_VERSION}/powerline-go-linux-amd64"
-
-      mkdir -p ~/bin
-      if curl -fL "$POWERLINE_URL" -o ~/bin/powerline-go; then
-        chmod +x ~/bin/powerline-go
-
-        # Add ~/bin to PATH in shell configs if not already there
-        if ! grep -q 'export PATH="$HOME/bin:$PATH"' ~/.zshrc; then
-          echo 'export PATH="$HOME/bin:$PATH"' >> ~/.zshrc
-        fi
-        if ! grep -q 'export PATH="$HOME/bin:$PATH"' ~/.bashrc; then
-          echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
-        fi
-
-        export PATH="$HOME/bin:$PATH"
-        echo "powerline-go installed successfully from pre-built binary"
-      else
-        echo "WARNING: Failed to download powerline-go (non-fatal)"
-        echo "The dotfiles will work without powerline-go, but the prompt won't be enhanced"
-      fi
-    fi
-  else
-    echo "powerline-go already installed"
-  fi
 
   # Tailscale (optional, only if not already installed)
   if ! command -v tailscale &> /dev/null; then
